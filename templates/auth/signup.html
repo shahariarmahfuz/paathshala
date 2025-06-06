@@ -1,0 +1,175 @@
+{% extends "layout.html" %}
+
+{% block title %}সাইনআপ - MCQ Platform{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --mp-primary: #4361ee;
+        --mp-primary-rgb: 67, 97, 238;
+        --mp-secondary: #3f37c9;
+        --mp-accent: #4895ef;
+        --mp-success: #28a745; 
+        --mp-light: #f8f9fa;
+        --mp-dark: #343a40;
+        --mp-light-gray: #e9ecef;
+        --mp-border-color: #dee2e6;
+        --mp-shadow-light: 0 4px 10px rgba(0, 0, 0, 0.07);
+        --mp-shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .mp-auth-body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        padding: 40px 0;
+    }
+
+    .mp-signup-card {
+        width: 100%;
+        max-width: 420px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: var(--mp-shadow-medium);
+        border: none;
+        overflow: hidden;
+    }
+
+    .mp-signup-card .mp-card-header {
+        background: linear-gradient(135deg, var(--mp-success), #218838);
+        color: white;
+        padding: 25px 20px;
+        text-align: center;
+        border-bottom: none;
+    }
+    .mp-signup-card .mp-card-header h4 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+     .mp-signup-card .mp-card-header i {
+        margin-right: 12px;
+        font-size: 1.5rem;
+    }
+
+    .mp-signup-card .mp-card-body {
+        padding: 30px 35px;
+    }
+
+    .mp-form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    .mp-form-group .mp-input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+    }
+
+    .mp-input { 
+        border-radius: 8px;
+        border: 1px solid var(--mp-border-color);
+        padding: 12px 15px 12px 40px;
+        font-size: 16px;
+        line-height: 1.5;
+        height: 50px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        width: 100%;
+        background-color: #fff;
+    }
+    .mp-input:focus {
+        border-color: var(--mp-success);
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        outline: none;
+    }
+     .mp-input:focus ~ .mp-input-icon {
+        color: var(--mp-success);
+    }
+
+    .mp-btn-signup {
+        background: linear-gradient(135deg, var(--mp-success), #218838);
+        color: white;
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.3s ease;
+        width: 100%;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+    }
+    .mp-btn-signup:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
+
+    .mp-signup-card .mp-card-footer {
+        background-color: var(--mp-light);
+        padding: 15px;
+        border-top: 1px solid var(--mp-border-color);
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    .mp-signup-card .mp-card-footer a {
+        color: var(--mp-primary);
+        font-weight: 600;
+    }
+    .mp-signup-card .mp-card-footer a:hover {
+        color: var(--mp-secondary);
+    }
+
+    @media (max-width: 576px) {
+        .mp-signup-card {
+            margin: 20px 15px;
+        }
+        .mp-signup-card .mp-card-header {
+            padding: 20px 15px;
+        }
+        .mp-signup-card .mp-card-header h4 {
+            font-size: 1.4rem;
+        }
+        .mp-signup-card .mp-card-body {
+            padding: 25px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mp-auth-body">
+    <div class="mp-signup-card">
+        <div class="mp-card-header">
+            <h4><i class="fas fa-user-plus"></i>নতুন অ্যাকাউন্ট তৈরি করুন</h4>
+        </div>
+        <div class="mp-card-body">
+            <form method="POST" action="{{ url_for('auth.signup') }}">
+                <div class="mp-form-group">
+                    <i class="fas fa-user mp-input-icon"></i>
+                    <input type="text" class="mp-input" id="username" name="username" placeholder="ইউজারনেম" required>
+                </div>
+                <div class="mp-form-group">
+                     <i class="fas fa-lock mp-input-icon"></i>
+                    <input type="password" class="mp-input" id="password" name="password" placeholder="পাসওয়ার্ড" required>
+                </div>
+                <button type="submit" class="mp-btn-signup">সাইনআপ</button>
+            </form>
+        </div>
+        <div class="mp-card-footer">
+            <small>ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="{{ url_for('auth.login') }}">এখানে লগইন করুন</a></small>
+        </div>
+    </div>
+</div>
+{% endblock %}
