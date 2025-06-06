@@ -67,16 +67,16 @@ def format_custom_bangla_datetime_filter(value_utc):
 
 # --- সরাসরি কনফিগারেশন ভেরিয়েবল ---
 # আপনার Render.com এর PostgreSQL কানেকশন স্ট্রিং এখানে দিন
-DATABASE_URL_CONFIG = os.environ.get('DATABASE_URL', 'postgresql://paathshala_ecvv_user:u49VmQvHmB6iLImHXqD4abmyppyDc6wg@dpg-d10s7t3e5dus73al7klg-a.singapore-postgres.render.com/paathshala_ecvv')
+DATABASE_URL_CONFIG = 'postgresql://paathshala_ecvv_user:u49VmQvHmB6iLImHXqD4abmyppyDc6wg@dpg-d10s7t3e5dus73al7klg-a/paathshala_ecvv'
 # APP_SECRET_KEY পরিবেশ পরিবর্তনশীল (Environment Variable) থেকে নেওয়া ভালো
-APP_SECRET_KEY = os.environ.get('SECRET_KEY', "একটি_শক্তিশালী_গোপন_কী_দিন_না_হলে_এটি_ব্যবহার_করুন") 
+APP_SECRET_KEY = "bd7124_hack"
 
 DEBUG_MODE_CONFIG_STR = os.environ.get('FLASK_DEBUG', 'True')
 DEBUG_MODE_CONFIG = DEBUG_MODE_CONFIG_STR.lower() in ('true', '1', 't')
 
 
-ADMIN_USERNAME_CONFIG = os.environ.get('ADMIN_USERNAME', "replitadmin")
-ADMIN_PASSWORD_CONFIG = os.environ.get('ADMIN_PASSWORD', "replit_strong_password_456")
+ADMIN_USERNAME_CONFIG = "mahfuz"
+ADMIN_PASSWORD_CONFIG = "Mahfuz@2023"
 # --- কনফিগারেশন শেষ ---
 
 
