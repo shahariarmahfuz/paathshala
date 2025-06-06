@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}কমেন্ট পরিচালনা: {{ post.title[:30] }}... - অ্যাডমিন{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h3 class="mb-3">পোস্টের কমেন্টসমূহ: "{{ post.title }}"</h3>
+    <p><a href="{{ url_for('post_admin.list_posts') }}" class="btn btn-sm btn-outline-secondary">&laquo; সকল পোস্টে ফিরে যান</a></p>
+
+    {% if comments %}
+    <ul class="list-group">
+        {% for comment in comments %}
+        <li class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">@{{ comment.user.username }}</h6>
+                <small class="text-muted">{{ comment.created_at | bangla_datetime }}</small>
+            </div>
+            <p class="mb-1">{{ comment.content|safe }}</p>
+            <div class="mt-2">
+                <form method="POST" action="{{ url_for('post_admin.delete_comment_admin', comment_id=comment.id) }}" style="display: inline;" onsubmit="return confirm('এই কমেন্টটি ডিলিট করতে চান?');">
+                    <button type="submit" class="btn btn-xs btn-danger">ডিলিট করুন</button>
+                </form>
+                {# যদি রিপ্লাই থাকে, সেগুলোও এখানে দেখানো যেতে পারে #}
+                {% if comment.replies.count() > 0 %}
+                    <small class="ml-2 text-muted">({{ comment.replies.count() }} টি রিপ্লাই আছে)</small>
+                {% endif %}
+            </div>
+            
+            {# রিপ্লাইগুলো দেখানোর জন্য (ঐচ্ছিক) #}
+            {% if comment.replies %}
+                <ul class="list-group mt-2 ml-4">
+                {% for reply in comment.replies %}
+                    <li class="list-group-item list-group-item-light py-2">
+                         <div class="d-flex w-100 justify-content-between">
+                            <small class="font-weight-bold">@{{ reply.user.username }} (রিপ্লাই)</small>
+                            <small class="text-muted">{{ reply.created_at | bangla_datetime }}</small>
+                        </div>
+                        <p class="mb-0 small">{{ reply.content|safe }}</p>
+                         <div class="mt-1">
+                            <form method="POST" action="{{ url_for('post_admin.delete_comment_admin', comment_id=reply.id) }}" style="display: inline;" onsubmit="return confirm('এই রিপ্লাইটি ডিলিট করতে চান?');">
+                                <button type="submit" class="btn btn-xs btn-outline-danger">রিপ্লাই ডিলিট</button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="alert alert-info">এই পোস্টে কোনো কমেন্ট পাওয়া যায়নি।</div>
+    {% endif %}
+</div>
+{% endblock %}

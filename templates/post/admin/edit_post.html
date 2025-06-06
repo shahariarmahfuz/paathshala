@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}পোস্ট সম্পাদনা - অ্যাডমিন{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">পোস্ট সম্পাদনা করুন (আইডি: {{ post.id }})</h2>
+    <div class="card">
+        <div class="card-header">পোস্টের বিবরণ পরিবর্তন করুন</div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('post_admin.edit_post', post_id=post.id) }}">
+                <div class="form-group">
+                    <label for="title">শিরোনাম</label>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ request.form.title or post.title }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">বিষয়বস্তু</label>
+                    <textarea class="form-control" id="content" name="content" rows="10" required>{{ request.form.content or post.content }}</textarea>
+                </div>
+                <p class="text-muted small">
+                    লেখক: @{{ post.author.username }} <br>
+                    তৈরির তারিখ: {{ post.created_at | bangla_datetime if post.created_at }} <br>
+                    শেষ আপডেট: {{ post.updated_at | bangla_datetime if post.updated_at }}
+                </p>
+                <button type="submit" class="btn btn-primary">আপডেট করুন</button>
+                <a href="{{ url_for('post_admin.list_posts') }}" class="btn btn-secondary">বাতিল</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{# যদি রিচ টেক্সট এডিটর ব্যবহার করেন, তার JS এখানে যোগ করুন #}
+{# <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('content');
+</script> #}
+{% endblock %}
