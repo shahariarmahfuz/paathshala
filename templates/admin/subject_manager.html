@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}বিষয় পরিচালনা - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>বিষয় পরিচালনা</h2>
+        <a href="{{ url_for('admin.manage_classes') }}" class="btn btn-outline-secondary btn-sm">শ্রেণী পরিচালনা করুন</a>
+    </div>
+
+
+    <div class="card mb-4">
+        <div class="card-header">
+            নতুন বিষয় যোগ করুন
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.subject_manager') }}">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="class_level_id">শ্রেণী</label>
+                        <select class="form-control" id="class_level_id" name="class_level_id" required>
+                            <option value="" disabled selected>--- শ্রেণী নির্বাচন করুন ---</option>
+                            {% for class_item in classes %}
+                            <option value="{{ class_item.id }}">{{ class_item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="name">বিষয়ের নাম</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="যেমন: বাংলা ১ম পত্র" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="description">বিবরণ (ঐচ্ছিক)</label>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="সংক্ষিপ্ত বিবরণ">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">বিষয় যোগ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            বিদ্যমান বিষয়সমূহ
+        </div>
+        <div class="card-body">
+            {% if subjects %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>আইডি</th>
+                            <th>বিষয়ের নাম</th>
+                            <th>শ্রেণী</th>
+                            <th>বিবরণ</th>
+                            <th>MCQ সংখ্যা</th>
+                            <th>কার্যক্রম</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject in subjects %}
+                        <tr>
+                            <td>{{ subject.id }}</td>
+                            <td>{{ subject.name }}</td>
+                            <td>{{ subject.class_level.name }}</td> {# শ্রেণী এখানে দেখানো হচ্ছে #}
+                            <td>{{ subject.description or '-' }}</td>
+                            <td>{{ subject.mcqs | length }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.edit_subject', subject_id=subject.id) }}" class="btn btn-sm btn-outline-info mr-1">এডিট</a>
+                                <form method="POST" action="{{ url_for('admin.delete_subject', subject_id=subject.id) }}" style="display:inline;" onsubmit="return confirm('আপনি কি নিশ্চিত যে এই বিষয়টি এবং এর অন্তর্গত সকল MCQ ডিলিট করতে চান?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">ডিলিট</button>
+                                </form>
+                                <a href="{{ url_for('admin.list_mcqs', class_id=subject.class_level_id, subject_id=subject.id) }}" class="btn btn-sm btn-outline-secondary ml-1">MCQ দেখুন</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">কোনো বিষয় এখনো যোগ করা হয়নি। প্রথমে শ্রেণী যোগ করুন, তারপর বিষয়।</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

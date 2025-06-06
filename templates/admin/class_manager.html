@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}শ্রেণী পরিচালনা - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">শ্রেণী পরিচালনা</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            নতুন শ্রেণী যোগ করুন
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.manage_classes') }}">
+                <div class="form-row">
+                    <div class="col-md-5 mb-2">
+                        <input type="text" class="form-control" name="name" placeholder="শ্রেণীর নাম (যেমন: নবম শ্রেণী, এসএসসি ২০২৩)" required>
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <input type="text" class="form-control" name="description" placeholder="সংক্ষিপ্ত বিবরণ (ঐচ্ছিক)">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-primary btn-block">যোগ করুন</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            বিদ্যমান শ্রেণীসমূহ
+        </div>
+        <div class="card-body">
+            {% if classes %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>আইডি</th>
+                            <th>নাম</th>
+                            <th>বিবরণ</th>
+                            <th>বিষয় সংখ্যা</th>
+                            <th>কার্যক্রম</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class_item in classes %}
+                        <tr>
+                            <td>{{ class_item.id }}</td>
+                            <td>{{ class_item.name }}</td>
+                            <td>{{ class_item.description or '-' }}</td>
+                            <td>{{ class_item.subjects | length }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.edit_class', class_id=class_item.id) }}" class="btn btn-sm btn-outline-info mr-1">এডিট</a>
+                                <form method="POST" action="{{ url_for('admin.delete_class', class_id=class_item.id) }}" style="display:inline;" onsubmit="return confirm('আপনি কি নিশ্চিত যে এই শ্রেণী এবং এর অন্তর্গত সকল বিষয় ও MCQ ডিলিট করতে চান? এটি পুনরুদ্ধার করা যাবে না।');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">ডিলিট</button>
+                                </form>
+                                <a href="{{ url_for('admin.subject_manager') }}?class_id={{ class_item.id }}" class="btn btn-sm btn-outline-secondary ml-1">বিষয় দেখুন</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">কোনো শ্রেণী এখনো যোগ করা হয়নি।</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

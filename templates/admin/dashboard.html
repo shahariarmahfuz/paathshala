@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}অ্যাডমিন ড্যাশবোর্ড - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">অ্যাডমিন ড্যাশবোর্ড</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">মোট ব্যবহারকারী</div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ user_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">মোট শ্রেণী</div> {# নতুন কার্ড #}
+                <div class="card-body">
+                    <h4 class="card-title">{{ class_count }}</h4>
+                    <a href="{{ url_for('admin.manage_classes') }}" class="btn btn-light btn-sm mt-2">শ্রেণী দেখুন</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">মোট বিষয়</div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ subject_count }}</h4>
+                    <a href="{{ url_for('admin.subject_manager') }}" class="btn btn-light btn-sm mt-2">বিষয় দেখুন</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">মোট MCQ</div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ mcq_count }}</h4>
+                    <a href="{{ url_for('admin.list_mcqs') }}" class="btn btn-light btn-sm mt-2">MCQ দেখুন</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h4>দ্রুত কার্যক্রম</h4>
+        <div class="list-group">
+            <a href="{{ url_for('admin.manage_classes') }}" class="list-group-item list-group-item-action">শ্রেণী পরিচালনা করুন</a>
+            <a href="{{ url_for('admin.subject_manager') }}" class="list-group-item list-group-item-action">বিষয় পরিচালনা করুন</a>
+            <a href="{{ url_for('admin.mcq_adder') }}" class="list-group-item list-group-item-action">নতুন MCQ যোগ করুন</a>
+            <a href="{{ url_for('admin.list_mcqs') }}" class="list-group-item list-group-item-action">MCQ তালিকা দেখুন ও সম্পাদনা করুন</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}বিষয় সম্পাদনা - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">বিষয় সম্পাদনা: {{ subject.name }} ({{ subject.class_level.name }})</h2>
+
+    <div class="card">
+        <div class="card-header">
+            বিষয়ের তথ্য পরিবর্তন করুন
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin.edit_subject', subject_id=subject.id) }}">
+                <div class="form-group">
+                    <label for="class_level_id">শ্রেণী</label>
+                    <select class="form-control" id="class_level_id" name="class_level_id" required>
+                        {% for class_item in classes %}
+                        <option value="{{ class_item.id }}" {% if class_item.id == subject.class_level_id %}selected{% endif %}>
+                            {{ class_item.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="name">বিষয়ের নাম</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ subject.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">বিষয়ের বিবরণ (ঐচ্ছিক)</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ subject.description or '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">আপডেট করুন</button>
+                <a href="{{ url_for('admin.subject_manager') }}" class="btn btn-secondary">বাতিল</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
