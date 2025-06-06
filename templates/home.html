@@ -1,0 +1,573 @@
+{% extends "layout.html" %}
+
+{% block title %}হোম - উন্নত ও আকর্ষণীয় MCQ প্ল্যাটফর্ম{% endblock %}
+
+{% block head_extra %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+:root {
+--primary: #4361ee;
+            --primary-rgb: 67, 97, 238;
+--secondary: #3f37c9;
+            --secondary-rgb: 63, 55, 201;
+--accent: #4895ef;
+--success: #4cc9f0;
+            --warning: #ffc107; /* হলুদ রঙ */
+--light: #f8f9fa;
+--dark: #212529;
+--gradient-start: #4361ee;
+--gradient-end: #3a0ca3;
+--shadow-light: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+            --shadow-strong: 0 12px 35px rgba(var(--primary-rgb), 0.15), 0 8px 15px rgba(var(--primary-rgb), 0.12);
+}
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: 'Hind Siliguri', sans-serif;
+background-color: #f0f4f8; /* হালকা নীল-ধূসর ব্যাকগ্রাউন্ড */
+color: #333;
+line-height: 1.7; /* উন্নত পঠনযোগ্যতার জন্য */
+min-height: 100vh;
+}
+
+.container {
+width: 100%;
+max-width: 1300px; /* সামান্য কমানো হলো */
+margin: 0 auto;
+padding: 0 15px; /* মোবাইলের জন্য ডিফল্ট প্যাডিং */
+}
+
+.main-header {
+background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+color: white;
+padding: 12px 0; /* প্যাডিং সামান্য কমানো হলো */
+box-shadow: var(--shadow-medium);
+            position: relative; /* স্টিকি থেকে পরিবর্তন করা হলো */
+            /* top: 0; z-index: 1000; এগুলো আর প্রয়োজন নেই */
+}
+
+.header-container {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo i { font-size: 26px; color: var(--warning); } /* লোগো আইকনের রঙ পরিবর্তন */
+.logo h1 { font-size: 22px; font-weight: 700; margin: 0; }
+
+.user-info { display: flex; align-items: center; gap: 12px; }
+.user-info .avatar {
+width: 40px; height: 40px; border-radius: 50%;
+background: linear-gradient(45deg, var(--success), var(--accent)); /* অ্যাভাটার ব্যাকগ্রাউন্ড পরিবর্তন */
+display: flex; align-items: center; justify-content: center;
+font-weight: bold; font-size: 16px; color: white;
+border: 2px solid rgba(255, 255, 255, 0.3); /* বর্ডার সামান্য পরিবর্তন */
+}
+.user-info .username { font-weight: 600; font-size: 17px; }
+
+.hero {
+padding: 70px 0 50px; /* প্যাডিং আপডেট */
+text-align: center;
+background-color: #ffffff; /* সাদা ব্যাকগ্রাউন্ড */
+            border-bottom: 1px solid #dee2e6; /* হালকা বর্ডার */
+}
+
+.hero h1.main-title { font-size: 38px; margin-bottom: 15px; color: var(--secondary); font-weight: 700; line-height: 1.3; }
+.hero p.lead-text { font-size: 19px; max-width: 700px; margin: 0 auto 25px; color: #555; }
+
+.hero-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 30px; flex-wrap: wrap; }
+
+.btn {
+padding: 12px 30px; border-radius: 8px; /* বাটন আকৃতি সামান্য পরিবর্তন */
+font-weight: 600; font-size: 17px; text-decoration: none;
+transition: all 0.25s ease-in-out; /* ট্রানজিশন উন্নত করা হলো */
+display: inline-flex; align-items: center; gap: 10px;
+box-shadow: var(--shadow-light);
+border: none; cursor: pointer;
+}
+
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; }
+.btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent), var(--secondary)); /* হোভার গ্রেডিয়েন্ট পরিবর্তন */
+            transform: translateY(-3px) scale(1.03); /* স্কেল ইফেক্ট যোগ */
+            box-shadow: var(--shadow-medium);
+        }
+
+.btn-secondary { background: var(--light); color: var(--primary); border: 1px solid #ddd; } /* বর্ডার যুক্ত */
+.btn-secondary:hover { background: #e9ecef; transform: translateY(-2px); box-shadow: var(--shadow-light); }
+
+        .btn-admin { background: linear-gradient(135deg, #ff7e5f, #feb47b); color: white; } /* অ্যাডমিন বাটন রঙ পরিবর্তন */
+        .btn-admin:hover { background: linear-gradient(135deg, #feb47b, #ff7e5f); transform: translateY(-3px) scale(1.03); box-shadow: var(--shadow-medium); }
+
+        .btn-lg { padding: 15px 35px; font-size: 18px; } /* বড় বাটনের জন্য স্টাইল */
+
+.features, .question-types, .educational-posts, .stats, .subject-categories, .featured-quiz {
+padding: 70px 0; /* সেকশন প্যাডিং */
+}
+        .question-types, .subject-categories { background-color: #ffffff; } /* কিছু সেকশনের জন্য সাদা ব্যাকগ্রাউন্ড */
+
+.section-title { text-align: center; margin-bottom: 50px; }
+.section-title h2 {
+font-size: 32px; color: var(--dark); /* রঙ পরিবর্তন */
+font-weight: 700; position: relative; display: inline-block; padding-bottom: 15px;
+}
+.section-title h2 .fa-star { font-size: 24px; margin: 0 10px; } /* দিনের সেরা কুইজ টাইটেল আইকন */
+
+.section-title h2:after {
+content: ''; position: absolute; bottom: 0; left: 50%;
+transform: translateX(-50%); width: 70px; height: 4px;
+background: linear-gradient(to right, var(--primary), var(--success)); /* আন্ডারলাইন গ্রেডিয়েন্ট পরিবর্তন */
+border-radius: 3px;
+}
+
+.features-grid, .types-grid, .posts-grid, .stats-grid, .categories-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 25px; /* গ্যাপ সামান্য বৃদ্ধি */
+}
+
+.feature-card, .type-card, .post-card, .category-card {
+background: #ffffff; border-radius: 12px; /* বর্ডার রেডিয়াস পরিবর্তন */
+padding: 25px; box-shadow: var(--shadow-medium);
+transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* উন্নত ট্রানজিশন */
+text-align: center;
+            border: 1px solid #e9ecef; /* হালকা বর্ডার */
+}
+        .feature-card { border-top: 4px solid var(--primary); } /* আগের মতো */
+
+.feature-card:hover, .type-card:hover, .post-card:hover, .category-card:hover {
+transform: translateY(-10px);
+box-shadow: var(--shadow-strong);
+}
+
+.feature-icon {
+width: 65px; height: 65px;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+border-radius: 16px; /* আইকন বক্স রেডিয়াস পরিবর্তন */
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 20px; font-size: 28px; color: white;
+}
+
+.feature-card h3, .category-card h3 { font-size: 21px; margin-bottom: 10px; color: var(--secondary); }
+.feature-card p, .category-card p { color: #555; font-size: 16px; margin-bottom: 15px; line-height: 1.6; }
+
+        /* Type Card Styles */
+        .type-card { display: flex; flex-direction: column; text-align: left; } /* টেক্সট অ্যালাইন পরিবর্তন */
+.type-header { padding: 20px; color: white; display: flex; align-items: center; gap: 15px; border-radius: 12px 12px 0 0; }
+.type-header i { font-size: 26px; }
+        .type-header h3 { margin: 0; font-size: 20px; color: white; } /* রঙ পরিবর্তন */
+.type-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.type-content p { color: #555; margin-bottom: 20px; font-size: 15px; line-height: 1.6; }
+        .type-content .btn { margin-top: auto; width: auto; padding: 10px 22px; font-size: 15px; align-self: flex-start; border-radius: 6px; }
+
+        /* Category Card specific Styles */
+        .category-card { text-align: center; }
+        .category-icon {
+            width: 70px; height: 70px; border-radius: 50%; /* গোলাকার আইকন ব্যাকগ্রাউন্ড */
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 30px; color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .category-card .btn { border-radius: 6px; }
+
+.type-card.mcq .type-header { background: linear-gradient(135deg, #e53935, #e35d5b); } /* গাঢ় লাল */
+.type-card.creative .type-header { background: linear-gradient(135deg, #00ACC1, #00c4cc); } /* গাঢ় সায়ান */
+.type-card.comprehension .type-header { background: linear-gradient(135deg, #3949AB, #5c6bc0); } /* গাঢ় নীল */
+.type-card.shortq .type-header { background: linear-gradient(135deg, #FB8C00, #f9a825); } /* গাঢ় কমলা */
+
+        /* Post Card Styles */
+.post-card { text-align: left; } /* টেক্সট অ্যালাইন পরিবর্তন */
+.post-image {
+height: 180px; /* উচ্চতা অ্যাডজাস্ট */
+background: linear-gradient(135deg, var(--accent), var(--success));
+display: flex; align-items: center; justify-content: center;
+color: white; font-size: 44px; border-radius: 12px 12px 0 0; /* রেডিয়াস অ্যাডজাস্ট */
+}
+.post-content { padding: 20px; }
+.post-content h3 { font-size: 20px; margin-bottom: 10px; color: var(--secondary); }
+.post-meta { display: flex; gap: 12px; margin-bottom: 12px; font-size: 14px; color: #777; flex-wrap: wrap; }
+.post-meta i { margin-right: 5px; }
+.post-content p { color: #555; margin-bottom: 15px; font-size: 15px; line-height: 1.6; }
+.read-more { display: inline-flex; align-items: center; color: var(--primary); font-weight: 600; text-decoration: none; gap: 8px; transition: all 0.2s ease; font-size: 15px; }
+.read-more:hover { color: var(--secondary); gap: 12px; text-decoration: underline; }
+
+        /* Featured Quiz Styles */
+        .featured-quiz-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-strong);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            margin-top: 20px;
+        }
+        .quiz-image-placeholder {
+            width: 100px; height: 100px;
+            background: linear-gradient(135deg, var(--warning), var(--success));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: white;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(var(--primary-rgb), 0.2);
+        }
+        .quiz-details h3 {
+            font-size: 26px; color: var(--secondary); margin-bottom: 15px; font-weight: 700;
+        }
+        .quiz-meta {
+            display: flex; justify-content: center; flex-wrap: wrap;
+            gap: 10px 20px; /* row-gap column-gap */
+            color: #555; margin-bottom: 20px; font-size: 15px;
+        }
+        .quiz-meta span { display: inline-flex; align-items: center; }
+        .quiz-meta i { margin-right: 6px; color: var(--primary); }
+        .quiz-description {
+            font-size: 17px; color: #444; line-height: 1.7;
+            max-width: 600px; margin: 0 auto 30px;
+        }
+        @media (min-width: 768px) { /* ডেক্সটপের জন্য লেআউট */
+            .featured-quiz-card {
+                flex-direction: row;
+                text-align: left;
+                align-items: flex-start; /* আইকন ও টেক্সট উপরে অ্যালাইন */
+            }
+            .quiz-image-placeholder {
+                margin-right: 30px;
+                margin-bottom: 0;
+                flex-shrink: 0; /* ইমেজ যেন ছোট না হয়ে যায় */
+            }
+            .quiz-details {
+                flex-grow: 1;
+            }
+            .quiz-meta {
+                justify-content: flex-start;
+            }
+            .quiz-description {
+                margin: 0 0 30px 0; /* অটো মার্জিন বাদ */
+            }
+        }
+
+        /* Stats Section Styles */
+.stats { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; text-align: center; }
+.stat-item { padding: 20px; }
+.stat-item i { font-size: 40px; margin-bottom: 15px; color: rgba(255, 255, 255, 0.85); }
+.stat-number { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
+.stat-label { font-size: 17px; opacity: 0.9; }
+
+/* Animations */
+.animate-on-scroll { opacity: 0; transform: translateY(25px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+.animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+
+        .copyright-section {
+            text-align: center; padding: 25px 0;
+            background-color: #e9ecef; color: #454545; /* রঙ সামান্য পরিবর্তন */
+            font-size: 15px; border-top: 1px solid #ced4da; /* বর্ডার রঙ পরিবর্তন */
+            margin-top: 40px; /* উপরের সেকশন থেকে দূরত্ব */
+        }
+
+/* Responsive Design Adjustments */
+@media (max-width: 992px) {
+.hero h1.main-title { font-size: 34px; }
+.hero p.lead-text { font-size: 18px; }
+.section-title h2 { font-size: 30px; }
+            .quiz-details h3 { font-size: 24px; }
+            .quiz-description { font-size: 16px; }
+}
+
+@media (max-width: 768px) {
+.main-header { padding: 10px 0; }
+            .header-container { flex-direction: column; gap: 12px; }
+.hero { padding: 50px 0 30px; }
+.hero h1.main-title { font-size: 30px; }
+.hero p.lead-text { font-size: 17px; margin: 0 auto 20px; }
+.hero-buttons { flex-direction: column; align-items: center; gap: 12px; }
+.btn { max-width: 280px; justify-content: center; font-size: 16px; padding: 12px 25px;}
+            .btn-lg { padding: 14px 30px; font-size: 17px; }
+            .features, .question-types, .educational-posts, .stats, .subject-categories, .featured-quiz { padding: 50px 0; }
+            .section-title { margin-bottom: 35px; }
+            .section-title h2 { font-size: 28px; }
+            .features-grid, .types-grid, .posts-grid, .stats-grid, .categories-grid { gap: 20px; }
+            .feature-card, .type-card, .post-card, .category-card { padding: 20px; }
+            .feature-card h3, .category-card h3 { font-size: 20px; }
+            .type-header h3 { font-size: 18px; }
+            .post-content h3 { font-size: 19px; }
+            .quiz-image-placeholder { width: 80px; height: 80px; font-size: 32px; margin-bottom: 20px; }
+            .quiz-details h3 { font-size: 22px; }
+            .quiz-meta { font-size: 14px; gap: 8px 15px; }
+            .quiz-description { font-size: 15px; margin-bottom: 25px; }
+}
+
+@media (max-width: 480px) { /* ছোট মোবাইলের জন্য অতিরিক্ত মিডিয়া কোয়েরি */
+            .container { padding: 0 10px; }
+            .logo i { font-size: 22px; } .logo h1 { font-size: 20px; }
+            .user-info .avatar { width: 35px; height: 35px; font-size: 15px; }
+            .user-info .username { font-size: 16px; }
+.hero h1.main-title { font-size: 26px; }
+.hero p.lead-text { font-size: 16px; }
+.section-title h2 { font-size: 24px; }
+            .section-title h2 .fa-star { font-size: 20px; margin: 0 8px;}
+            .btn { font-size: 15px; padding: 10px 20px; } .btn-lg { font-size: 16px; padding: 12px 25px; }
+            .feature-icon { width: 60px; height: 60px; font-size: 24px; }
+            .feature-card h3, .category-card h3 { font-size: 19px; }
+            .feature-card p, .category-card p { font-size: 15px; }
+            .type-header i { font-size: 22px; } .type-header h3 { font-size: 17px; }
+            .type-content p { font-size: 14px; } .type-content .btn { font-size: 14px; padding: 8px 18px; }
+            .post-image { height: 150px; font-size: 36px; }
+            .post-content h3 { font-size: 18px; } .post-meta { font-size: 13px; }
+            .post-content p { font-size: 14px; } .read-more { font-size: 14px; }
+            .stat-item i { font-size: 32px; } .stat-number { font-size: 28px; } .stat-label { font-size: 15px; }
+            .quiz-image-placeholder { width: 70px; height: 70px; font-size: 28px;}
+            .quiz-details h3 { font-size: 20px; }
+            .quiz-meta { gap: 5px 10px; }
+            .quiz-description { font-size: 14px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="main-header">
+<div class="container header-container">
+<div class="logo">
+<i class="fas fa-graduation-cap"></i>
+<h1>MCQ Platform</h1>
+</div>
+<div class="user-info">
+<div class="avatar">{{ current_user.username[0] | upper if current_user and current_user.username else 'U' }}</div>
+<div class="username">{{ current_user.username if current_user else 'অতিথি' }}</div>
+</div>
+</div>
+</header>
+
+<section class="hero">
+<div class="container">
+<h1 class="main-title animate__animated animate__fadeInDown">MCQ Platform এ স্বাগতম, {{ current_user.username if current_user else 'অতিথি' }}!</h1>
+<p class="lead-text animate__animated animate__fadeIn animate__delay-05s">আপনার জ্ঞান যাচাই, অনুশীলন এবং নতুন কিছু শেখার এটি একটি আধুনিক ও সমৃদ্ধ জায়গা।</p>             <p class="lead-text animate__animated animate__fadeIn animate__delay-1s">এখনই পরীক্ষা শুরু করুন অথবা পছন্দের বিষয়টি বেছে নিন।</p>
+
+<div class="hero-buttons animate__animated animate__fadeInUp animate__delay-1-5s">                 <a href="{{ url_for('public.mcq_selection') }}" class="btn btn-primary">
+<i class="fas fa-play-circle"></i> MCQ পরীক্ষা শুরু করুন
+</a>
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+<a href="{{ url_for('admin.dashboard') }}" class="btn btn-admin">
+<i class="fas fa-user-shield"></i> অ্যাডমিন ড্যাশবোর্ড                 </a>
+                {% endif %}
+</div>
+</div>
+</section>
+
+    <section class="featured-quiz">
+        <div class="container">
+            <div class="section-title">
+                <h2><i class="fas fa-star" style="color: var(--warning);"></i> দিনের সেরা কুইজ <i class="fas fa-star" style="color: var(--warning);"></i></h2>
+            </div>
+            <div class="featured-quiz-card animate-on-scroll">
+                <div class="quiz-image-placeholder">
+                    <i class="fas fa-puzzle-piece"></i>
+                </div>
+                <div class="quiz-details">
+                    <h3>সাধারণ বিজ্ঞান কুইজ - চ্যালেঞ্জ পর্ব</h3>
+                    <p class="quiz-meta">
+                        <span><i class="fas fa-question-circle"></i> ২০ প্রশ্ন</span>
+                        <span><i class="fas fa-user-friends"></i> ৫০০+ প্রতিযোগী</span>
+                        <span><i class="fas fa-tachometer-alt"></i> মাঝারি</span>
+                    </p>
+                    <p class="quiz-description">আজকের এই বিশেষ সাধারণ বিজ্ঞান কুইজে অংশগ্রহণ করে আপনার প্রস্তুতি যাচাই করুন এবং লিডারবোর্ডে শীর্ষস্থান অর্জনের চেষ্টা করুন!</p>
+                    <a href="#" class="btn btn-primary btn-lg">কুইজ শুরু করুন</a> {# TODO: Add Featured Quiz URL #}
+                </div>
+            </div>
+        </div>
+    </section>
+
+<section class="features">
+<div class="container">
+<div class="section-title">
+<h2>আমাদের বিশেষ সুবিধাসমূহ</h2>
+</div>
+
+<div class="features-grid">
+<div class="feature-card animate-on-scroll">
+<div class="feature-icon"><i class="fas fa-tasks"></i></div>                     <h3>বহুমুখী অনুশীলন</h3>
+<p>MCQ, সৃজনশীল, অনুধাবন ও সংক্ষিপ্ত প্রশ্নের মাধ্যমে প্রস্তুতিকে আরও শক্তিশালী করুন।</p>
+                    <a href="{{ url_for('public.mcq_selection') }}" class="btn btn-secondary">অনুশীলন করুন</a>
+</div>
+
+<div class="feature-card animate-on-scroll">
+<div class="feature-icon"><i class="fas fa-chart-pie"></i></div>                     <h3>অগ্রগতি বিশ্লেষণ</h3>                     <p>পরীক্ষার ফলাফল ও সময় বিশ্লেষণ করে নিজের অগ্রগতি সম্পর্কে বিস্তারিত জানুন।</p>
+                     <a href="#" class="btn btn-secondary">বিস্তারিত দেখুন</a> {# TODO: Add Progress URL #}
+</div>
+
+<div class="feature-card animate-on-scroll">
+<div class="feature-icon"><i class="fas fa-trophy"></i></div>
+<h3>লিডারবোর্ড</h3>
+<p>অন্যান্য শিক্ষার্থীদের সাথে প্রতিযোগিতা করুন এবং লিডারবোর্ডে শীর্ষস্থান অর্জন করুন।</p>
+                     <a href="#" class="btn btn-secondary">লিডারবোর্ড দেখুন</a> {# TODO: Add Leaderboard URL #}
+</div>
+
+<div class="feature-card animate-on-scroll">
+<div class="feature-icon"><i class="fas fa-medal"></i></div>                     <h3>ডিজিটাল অ্যাওয়ার্ড</h3>                     <p>কোর্স বা লক্ষ্যমাত্রা সফলভাবে সম্পন্ন করে ডিজিটাল সার্টিফিকেট ও ব্যাজ অর্জন করুন।</p>
+                     <a href="#" class="btn btn-secondary">বিস্তারিত দেখুন</a> {# TODO: Add Certificates URL #}
+</div>
+</div>
+</div>
+</section>
+
+<section class="question-types">
+<div class="container">
+<div class="section-title">
+<h2>বিভিন্ন ধরনের প্রশ্নাবলী</h2>
+</div>
+
+<div class="types-grid">
+                <div class="type-card mcq animate-on-scroll">
+<div class="type-header">
+<i class="fas fa-check-circle"></i><h3>বহুনির্বাচনী (MCQ)</h3>                     </div>
+<div class="type-content">
+<p>হাজারো বহুনির্বাচনী প্রশ্নের মাধ্যমে নিয়মিত অনুশীলন করুন ও জ্ঞান যাচাই করুন। প্রতিটি প্রশ্নের সঠিক উত্তর ও ব্যাখ্যা জানুন।</p>
+<a href="{{ url_for('public.mcq_selection') }}" class="btn btn-primary">অনুশীলন করুন</a>
+</div>
+</div>
+
+<div class="type-card creative animate-on-scroll">
+<div class="type-header">
+<i class="fas fa-pencil-ruler"></i><h3>সৃজনশীল (CQ)</h3>                     </div>
+<div class="type-content">
+<p>উদ্দীপক-ভিত্তিক সৃজনশীল প্রশ্নের মাধ্যমে বিশ্লেষণ ক্ষমতা ও প্রয়োগিক জ্ঞান বৃদ্ধি করুন। মডেল উত্তর ও মূল্যায়ন নির্দেশিকা।</p>
+<a href="#" class="btn btn-primary">অনুশীলন করুন</a> {# TODO: Add Creative Question URL #}
+</div>
+</div>
+
+<div class="type-card comprehension animate-on-scroll">
+<div class="type-header">
+<i class="fas fa-book-reader"></i><h3>অনুধাবনমূলক</h3>                     </div>
+<div class="type-content">
+<p>গুরুত্বপূর্ণ অনুচ্ছেদ পড়ে সেগুলোর গভীর ভাব বোঝার চেষ্টা করুন এবং সম্পর্কিত প্রশ্নের উত্তর দিন। অনুধাবন দক্ষতা যাচাই করুন।</p>
+<a href="#" class="btn btn-primary">অনুশীলন করুন</a> {# TODO: Add Comprehension Question URL #}
+</div>
+</div>
+
+<div class="type-card shortq animate-on-scroll">
+<div class="type-header">
+<i class="fas fa-feather-alt"></i><h3>সংক্ষিপ্ত (SQ)</h3>                     </div>
+<div class="type-content">
+<p>গুরুত্বপূর্ণ সংজ্ঞা, পার্থক্য, এবং সংক্ষিপ্ত ব্যাখ্যামূলক প্রশ্নের উত্তর দিয়ে বিষয়ভিত্তিক জ্ঞানকে আরও মজবুত করুন।</p>
+<a href="#" class="btn btn-primary">অনুশীলন করুন</a> {# TODO: Add Short Question URL #}
+</div>
+</div>
+</div>
+</div>
+</section>
+
+    <section class="subject-categories">
+        <div class="container">
+            <div class="section-title">
+                <h2>বিষয়ভিত্তিক অনুশীলন</h2>
+            </div>
+            <div class="categories-grid">
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #ff7f50, #ff6347);"> <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3>গণিত</h3>
+                    <p>জ্যামিতি, বীজগণিত, ত্রিকোণমিতি ও পাটিগণিতের অনুশীলন।</p>
+                    <a href="#" class="btn btn-primary">অনুশীলন করুন</a> {# TODO: Math Subject URL #}
+                </div>
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #20b2aa, #3cb371);"> <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>বিজ্ঞান</h3>
+                    <p>পদার্থ, রসায়ন ও জীববিজ্ঞানের গুরুত্বপূর্ণ বিষয়াবলী।</p>
+                    <a href="#" class="btn btn-primary">অনুশীলন করুন</a> {# TODO: Science Subject URL #}
+                </div>
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #87ceeb, #4682b4);"> <i class="fas fa-language"></i>
+                    </div>
+                    <h3>ইংরেজি</h3>
+                    <p>গ্রামার, ভোকাবুলারি এবং কম্প্রিহেনশন চর্চা করুন।</p>
+                    <a href="#" class="btn btn-primary">অনুশীলন করুন</a> {# TODO: English Subject URL #}
+                </div>
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon" style="background: linear-gradient(135deg, #f0e68c, #ffd700);"> <i class="fas fa-globe-asia"></i>
+                    </div>
+                    <h3>সাধারণ জ্ঞান</h3>
+                    <p>বাংলাদেশ ও আন্তর্জাতিক বিষয়াবলী সম্পর্কে জানুন।</p>
+                    <a href="#" class="btn btn-primary">অনুশীলন করুন</a> {# TODO: GK Subject URL #}
+                </div>
+            </div>
+        </div>
+    </section>
+
+<section class="educational-posts" style="background-color: #f0f4f8;">         <div class="container">
+<div class="section-title">
+<h2>শিক্ষামূলক পোস্ট ও আর্টিকেল</h2>
+</div>
+
+<div class="posts-grid">
+<div class="post-card animate-on-scroll">
+<div class="post-image"><i class="fas fa-book-sparkles"></i></div>                     <div class="post-content">
+<h3>পরীক্ষায় ভালো করার ১০টি কার্যকরী কৌশল</h3>
+<div class="post-meta">
+<span><i class="fas fa-calendar-alt"></i> জুন ৬, ২০২৫</span>
+<span><i class="fas fa-user-tie"></i> প্ল্যাটফর্ম টিম</span>                         </div>
+<p>সামনেই পরীক্ষা? প্রস্তুতি নিয়ে চিন্তিত? এই পোস্টে আমরা আলোচনা করেছি ১০টি প্রমাণিত কৌশল যা আপনার পরীক্ষার প্রস্তুতিতে সহায়তা করবে...</p>
+<a href="#" class="read-more">আরও পড়ুন <i class="fas fa-long-arrow-alt-right"></i></a>
+</div>
+</div>
+
+<div class="post-card animate-on-scroll">
+<div class="post-image"><i class="fas fa-user-clock"></i></div>                     <div class="post-content">
+<h3>টাইম ম্যানেজমেন্ট: ছাত্রজীবনে সাফল্যের চাবিকাঠি</h3>
+<div class="post-meta">
+<span><i class="fas fa-calendar-alt"></i> জুন ১, ২০২৫</span>
+<span><i class="fas fa-pen-fancy"></i> অতিথি লেখক</span>                         </div>
+<p>পড়াশোনার পাশাপাশি অন্যান্য কাজ সামলে কীভাবে সময়কে সঠিকভাবে ব্যবহার করা যায়? জানুন টাইম ম্যানেজমেন্টের কিছু গুরুত্বপূর্ণ টিপস...</p>
+<a href="#" class="read-more">আরও পড়ুন <i class="fas fa-long-arrow-alt-right"></i></a>
+</div>
+</div>
+
+<div class="post-card animate-on-scroll">
+<div class="post-image"><i class="fas fa-brain"></i></div>                     <div class="post-content">
+<h3>স্মৃতিশক্তি বাড়ানোর বৈজ্ঞানিক উপায়</h3>                         <div class="post-meta">
+<span><i class="fas fa-calendar-alt"></i> মে ২৮, ২০২৫</span>
+<span><i class="fas fa-chalkboard-teacher"></i> বিশেষজ্ঞ শিক্ষক</span>                         </div>
+<p>কীভাবে কম সময়ে বেশি পড়া মনে রাখা যায়? স্মৃতিশক্তি বৃদ্ধি এবং মনোযোগ ধরে রাখার বৈজ্ঞানিক টিপস ও কৌশল জানুন।</p>
+<a href="#" class="read-more">আরও পড়ুন <i class="fas fa-long-arrow-alt-right"></i></a>
+</div>
+</div>
+</div>
+            <div style="text-align: center; margin-top: 35px;">
+                 <a href="#" class="btn btn-primary"><i class="fas fa-newspaper"></i> সব পোস্ট দেখুন</a> {# TODO: Add All Posts URL #}
+            </div>
+</div>
+</section>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const animateElements = document.querySelectorAll('.animate-on-scroll');
+if ('IntersectionObserver' in window) {
+const observer = new IntersectionObserver((entries) => {
+entries.forEach(entry => {
+if (entry.isIntersecting) {
+entry.target.classList.add('visible');
+observer.unobserve(entry.target);
+}
+});
+}, { threshold: 0.1 });
+animateElements.forEach(element => { observer.observe(element); });
+} else {
+                animateElements.forEach(element => { element.classList.add('visible'); });
+            }
+});
+</script>
+{% endblock %}

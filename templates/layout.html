@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MCQ Platform{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    {# নিচের লিঙ্কে আপনার নতুন বা পরিবর্তিত CSS ফাইলের পাথ হবে #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {# Font Awesome লিঙ্ক (যদি না থাকে বা অন্য কোনো আইকন লাইব্রেরি ব্যবহার করতে চান) #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            {# Example: Navbar brand with an icon if you decide to add one (currently no icon in original)
+            <a class="navbar-brand" href="{{ url_for('public.home') }}">
+                <i class="fas fa-graduation-cap"></i> পাঠশালা
+            </a> #}
+            <a class="navbar-brand" href="{{ url_for('public.home') }}">পাঠশালা</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav mr-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item {% if request.endpoint == 'public.home' %}active{% endif %}">
+                             {# Example with icon: <a class="nav-link" href="{{ url_for('public.home') }}"><i class="fas fa-home"></i> হোম</a> #}
+                            <a class="nav-link" href="{{ url_for('public.home') }}">হোম</a>
+                        </li>
+                        <li class="nav-item {% if request.endpoint == 'public.mcq_selection' %}active{% endif %}">
+                            <a class="nav-link" href="{{ url_for('public.mcq_selection') }}">MCQ পরীক্ষা</a>
+                        </li>
+                        <li class="nav-item {% if request.blueprint == 'public_extra' %}active{% endif %}">
+                            <a class="nav-link" href="{{ url_for('public_extra.select_extra_questions') }}">অন্যান্য প্রশ্ন পড়ুন</a>
+                        </li>
+                        {# নতুন: শিক্ষামূলক পোস্টের লিঙ্ক (পাবলিক) #}
+                        <li class="nav-item {% if request.blueprint == 'post_public' %}active{% endif %}">
+                            <a class="nav-link" href="{{ url_for('post_public.list_all_posts') }}">শিক্ষামূলক পোস্ট</a>
+                        </li>
+
+                        {% if current_user.role == 'admin' %}
+                        <li class="nav-item dropdown {% if request.blueprint == 'admin' or request.blueprint == 'admin_extra' or request.blueprint == 'post_admin' %}active{% endif %}">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminMenuDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                অ্যাডমিন
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="adminMenuDropdown">
+                                {# Example with icon: <a class="dropdown-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}"><i class="fas fa-tachometer-alt"></i> প্রধান ড্যাশবোর্ড</a> #}
+                                <a class="dropdown-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">প্রধান ড্যাশবোর্ড</a>
+                                <div class="dropdown-divider"></div>
+                                <h6 class="dropdown-header">MCQ পরিচালনা</h6>
+                                <a class="dropdown-item {% if request.endpoint == 'admin.manage_classes' %}active{% endif %}" href="{{ url_for('admin.manage_classes') }}">শ্রেণীসমূহ</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin.subject_manager' %}active{% endif %}" href="{{ url_for('admin.subject_manager') }}">বিষয়সমূহ (MCQ)</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin.mcq_adder' %}active{% endif %}" href="{{ url_for('admin.mcq_adder') }}">নতুন MCQ যোগ</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin.list_mcqs' %}active{% endif %}" href="{{ url_for('admin.list_mcqs') }}">MCQ তালিকা</a>
+                                <div class="dropdown-divider"></div>
+                                <h6 class="dropdown-header">অন্যান্য প্রশ্ন পরিচালনা</h6>
+                                <a class="dropdown-item {% if request.endpoint == 'admin_extra.extra_dashboard' %}active{% endif %}" href="{{ url_for('admin_extra.extra_dashboard') }}">ড্যাশবোর্ড (অন্যান্য প্রশ্ন)</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin_extra.add_short_questions' %}active{% endif %}" href="{{ url_for('admin_extra.add_short_questions') }}">নতুন সংক্ষিপ্ত প্রশ্ন</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin_extra.list_short_questions' %}active{% endif %}" href="{{ url_for('admin_extra.list_short_questions') }}">সংক্ষিপ্ত প্রশ্নের তালিকা</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin_extra.add_comprehension_questions' %}active{% endif %}" href="{{ url_for('admin_extra.add_comprehension_questions') }}">নতুন অনুধাবনমূলক প্রশ্ন</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin_extra.list_comprehension_questions' %}active{% endif %}" href="{{ url_for('admin_extra.list_comprehension_questions') }}">অনুধাবনমূলক প্রশ্নের তালিকা</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin_extra.add_creative_questions' %}active{% endif %}" href="{{ url_for('admin_extra.add_creative_questions') }}">নতুন সৃজনশীল প্রশ্ন</a>
+                                <a class="dropdown-item {% if request.endpoint == 'admin_extra.list_creative_questions' %}active{% endif %}" href="{{ url_for('admin_extra.list_creative_questions') }}">সৃজনশীল প্রশ্নের তালিকা</a>
+                                <div class="dropdown-divider"></div>
+                                <h6 class="dropdown-header">শিক্ষামূলক পোস্ট পরিচালনা</h6> {# নতুন সাব-হেডার #}
+                                <a class="dropdown-item {% if request.endpoint == 'post_admin.add_post' %}active{% endif %}" href="{{ url_for('post_admin.add_post') }}">নতুন পোস্ট যোগ করুন</a>
+                                <a class="dropdown-item {% if request.endpoint == 'post_admin.list_posts' %}active{% endif %}" href="{{ url_for('post_admin.list_posts') }}">সকল পোস্ট (অ্যাডমিন)</a>
+                            </div>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="navbar-text mr-3">স্বাগতম, {{ current_user.username }}!</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm mt-1" href="{{ url_for('auth.logout') }}">লগআউট</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">লগইন</a>
+                        </li>
+                        <li class="nav-item {% if request.endpoint == 'auth.signup' %}active{% endif %}">
+                            <a class="nav-link" href="{{ url_for('auth.signup') }}">সাইনআপ</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main role="main" class="container mt-4 mb-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+    <div class="container">
+        <div class="footer-decoration decoration-1">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="footer-decoration decoration-2">
+            <i class="fas fa-book-open"></i>
+        </div>
+
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>প্রিমিয়াম MCQ</h3>
+                <p>শিক্ষাকে সহজ, আকর্ষণীয় এবং কার্যকর করার লক্ষ্যে আমরা কাজ করছি। আমাদের প্ল্যাটফর্মে আপনি পাবেন হাজারো গুণমানসম্পন্ন প্রশ্ন এবং শিক্ষামূলক সম্পদ।</p>
+
+                <div class="footer-badge">
+                    <i class="fas fa-award mr-2"></i> {# Note: Original HTML had 'me-2' which is Bootstrap 5, changed to 'mr-2' for BS4 compatibility if needed, though CSS targets the icon directly #}
+                    বাংলাদেশের সেরা MCQ প্ল্যাটফর্ম
+                </div>
+
+                <div class="social-links mt-4">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>দ্রুত লিঙ্ক</h3>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('public.home') }}"><i class="fas fa-chevron-right"></i> হোম পেজ</a></li>
+                    <li><a href="{{ url_for('public.mcq_selection') }}"><i class="fas fa-chevron-right"></i> MCQ পরীক্ষা</a></li>
+                    <li><a href="{{ url_for('public_extra.select_extra_questions') }}"><i class="fas fa-chevron-right"></i> সংক্ষিপ্ত প্রশ্ন</a></li>
+                    <li><a href="{{ url_for('public_extra.select_extra_questions') }}"><i class="fas fa-chevron-right"></i> অনুধাবনমূলক প্রশ্ন</a></li>
+                    <li><a href="{{ url_for('public_extra.select_extra_questions') }}"><i class="fas fa-chevron-right"></i> সৃজনশীল প্রশ্ন</a></li>
+                    <li><a href="{{ url_for('post_public.list_all_posts') }}"><i class="fas fa-chevron-right"></i> শিক্ষামূলক পোস্ট</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> ফলাফল ও রিপোর্ট</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>গুরুত্বপূর্ণ লিঙ্ক</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> আমাদের সম্পর্কে</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> গোপনীয়তা নীতি</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> ব্যবহারের শর্তাবলী</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> সাহায্য ও সহায়তা</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> প্রশ্নোত্তর</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> পরামর্শ দিন</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> ক্যারিয়ার</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>যোগাযোগ করুন</h3>
+                <ul class="footer-contact">
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>১২৩ লার্নিং স্ট্রিট, জ্ঞানপুর, ঢাকা, বাংলাদেশ</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone-alt"></i>
+                        <span>+৮৮০ ১২৩৪ ৫৬৭৮৯</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>info@premiummcq.edu.bd</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-clock"></i>
+                        <span>শনি-বৃহস্পতি: সকাল ৯টা - সন্ধ্যা ৬টা</span>
+                    </li>
+                </ul>
+
+                <div class="mt-3">
+                    <h5>নিউজলেটার সাবস্ক্রাইব করুন</h5>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="আপনার ইমেইল">
+                        <button class="btn btn-warning" type="button"> {# Added type="button" for semantic correctness #}
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>© ২০২৩ প্রিমিয়াম MCQ প্ল্যাটফর্ম। সমস্ত অধিকার সংরক্ষিত।</p>
+            <p class="mb-0">ডিজাইন এবং ডেভেলপমেন্ট - প্রিমিয়াম টিম | সংস্করণ: ২.১.৫</p>
+        </div>
+    </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script> {# আপনার কাস্টম script.js #}
+    {% block scripts %}{% endblock %}
+</body>
+</html>
