@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+
+{% block title %}নতুন সৃজনশীল প্রশ্ন যোগ - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">নতুন সৃজনশীল প্রশ্ন যোগ করুন</h2>
+    <div class="card">
+        <div class="card-header">
+            সৃজনশীল প্রশ্নের তথ্য দিন (JSON)
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_extra.add_creative_questions') }}">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="class_id_selector_creative_add">শ্রেণী নির্বাচন করুন:</label>
+                        <select class="form-control" id="class_id_selector_creative_add" name="class_id_selector" required>
+                            <option value="" disabled {% if not selected_class_id %}selected{% endif %}>--- শ্রেণী বাছাই করুন ---</option>
+                            {% for class_item in classes %}
+                            <option value="{{ class_item.id }}" {% if selected_class_id == class_item.id %}selected{% endif %}>
+                                {{ class_item.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="subject_id_creative_add">বিষয় নির্বাচন করুন:</label>
+                        <select class="form-control" id="subject_id_creative_add" name="subject_id" required {% if not selected_class_id %}disabled{% endif %}>
+                            <option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>
+                            {% if selected_class_id and subjects_for_selected_class %}
+                                {% for subject in subjects_for_selected_class %}
+                                    <option value="{{ subject.id }}" {% if selected_subject_id == subject.id %}selected{% endif %}>
+                                        {{ subject.name }}
+                                    </option>
+                                {% endfor %}
+                            {% elif selected_class_id %}
+                                 <option value="" disabled>এই শ্রেণীতে কোনো বিষয় নেই</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="json_data_creative">সৃজনশীল প্রশ্ন ডেটা (JSON ফরম্যাটে):</label>
+                    <textarea class="form-control" id="json_data_creative" name="json_data" rows="20" placeholder='এখানে সৃজনশীল প্রশ্নের JSON পেস্ট করুন...' required>{{ json_data or '' }}</textarea>
+                    <small class="form-text text-muted">
+                        একাধিক প্রশ্ন একসাথে যোগ করতে পারবেন। নমুনার জন্য নিচে দেখুন।
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>নমুনা JSON কাঠামো (সৃজনশীল প্রশ্ন):</label>
+                    <pre style="background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;"><code>{
+  "questions": [
+    {
+      "stimulus_text": "এখানে উদ্দীপক দিন...",
+      "parts": [
+        {"question_text": "জ্ঞানমূলক প্রশ্ন?", "answer_text": "উত্তর ক"},
+        {"question_text": "অনুধাবনমূলক প্রশ্ন?", "answer_text": "উত্তর খ"},
+        {"question_text": "প্রয়োগমূলক প্রশ্ন?", "answer_text": "উত্তর গ"},
+        {"question_text": "উচ্চতর দক্ষতামূলক প্রশ্ন?", "answer_text": "উত্তর ঘ"}
+      ]
+    }
+    // , আরও সৃজনশীল প্রশ্ন এখানে যোগ করা যাবে
+  ]
+}</code></pre>
+                </div>
+
+                <button type="submit" class="btn btn-primary">সৃজনশীল প্রশ্ন যোগ করুন</button>
+                <a href="{{ url_for('admin_extra.list_creative_questions') }}" class="btn btn-secondary">বাতিল</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    function populateSubjects(classId, subjectSelectElement, selectedSubjectId) {
+        subjectSelectElement.empty().append('<option value="" disabled selected>লোড হচ্ছে...</option>').prop('disabled', true);
+        if (classId) {
+            var ajaxUrl = "{{ url_for('admin.ajax_get_subjects_for_class', class_id=0) }}".slice(0, -1) + classId;
+            $.ajax({
+                url: ajaxUrl, type: 'GET',
+                success: function(data) {
+                    subjectSelectElement.empty().append('<option value="" disabled selected>--- বিষয় বাছাই করুন ---</option>');
+                    if (data.length > 0) {
+                        $.each(data, function(index, subject) {
+                            var option = $('<option>', { value: subject.id, text: subject.name });
+                            if (selectedSubjectId && subject.id == selectedSubjectId) {
+                                option.prop('selected', true);
+                            }
+                            subjectSelectElement.append(option);
+                        });
+                        subjectSelectElement.prop('disabled', false);
+                    } else {
+                        subjectSelectElement.append('<option value="" disabled>এই শ্রেণীতে কোনো বিষয় নেই</option>').prop('disabled', true);
+                    }
+                },
+                error: function() { subjectSelectElement.empty().append('<option value="" disabled>বিষয় আনতে সমস্যা হয়েছে</option>').prop('disabled', true); }
+            });
+        } else {
+            subjectSelectElement.empty().append('<option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>').prop('disabled', true);
+        }
+    }
+
+    var classSelector = $('#class_id_selector_creative_add');
+    var subjectSelector = $('#subject_id_creative_add');
+    var initialClassId = classSelector.val();
+    var initialSubjectId = "{{ selected_subject_id or '' }}"; 
+
+    classSelector.change(function() {
+        var classId = $(this).val();
+        populateSubjects(classId, subjectSelector, null);
+    });
+
+    if (initialClassId) {
+        populateSubjects(initialClassId, subjectSelector, initialSubjectId);
+    } else {
+         subjectSelector.prop('disabled', true);
+    }
+});
+</script>
+{% endblock %}

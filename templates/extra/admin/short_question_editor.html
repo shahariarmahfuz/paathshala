@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+{% block title %}সংক্ষিপ্ত প্রশ্ন সম্পাদনা - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">সংক্ষিপ্ত প্রশ্ন সম্পাদনা (আইডি: {{ question.id }})</h2>
+
+    <div class="card">
+        <div class="card-header">
+            সংক্ষিপ্ত প্রশ্নের তথ্য পরিবর্তন করুন
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_extra.edit_short_question', q_id=question.id) }}">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="class_id_selector_edit_short">শ্রেণী:</label>
+                        <select class="form-control" id="class_id_selector_edit_short" name="class_id_selector_disabled_visual" disabled>
+                            <option value="" disabled {% if not selected_class_id %}selected{% endif %}>--- শ্রেণী বাছাই করুন ---</option>
+                            {% for class_item in classes %}
+                            <option value="{{ class_item.id }}" {% if selected_class_id == class_item.id %}selected{% endif %}>
+                                {{ class_item.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="subject_id_edit_short">বিষয়:</label>
+                        <select class="form-control" id="subject_id_edit_short" name="subject_id" required>
+                            <option value="" disabled>--- প্রথমে শ্রেণী বাছাই করুন ---</option>
+                             {% if selected_class_id and subjects_for_selected_class %}
+                                {% for sub in subjects_for_selected_class %}
+                                <option value="{{ sub.id }}" {% if selected_subject_id == sub.id %}selected{% endif %}>{{ sub.name }}</option>
+                                {% endfor %}
+                            {% elif selected_class_id %}
+                                <option value="" disabled>এই শ্রেণীতে কোনো বিষয় নেই</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="question_text">প্রশ্ন:</label>
+                    <textarea class="form-control" id="question_text" name="question_text" rows="5" required>{{ request.form.question_text or question.question_text or '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="answer_text">উত্তর:</label>
+                    <textarea class="form-control" id="answer_text" name="answer_text" rows="5" required>{{ request.form.answer_text or question.answer_text or '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">আপডেট করুন</button>
+                <a href="{{ url_for('admin_extra.list_short_questions', class_id=question.subject.class_level_id, subject_id=question.subject_id) }}" class="btn btn-secondary">বাতিল</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    function populateSubjects(classId, subjectSelectElement, selectedSubjectId) {
+        subjectSelectElement.empty().append('<option value="" disabled selected>লোড হচ্ছে...</option>').prop('disabled', true);
+        if (classId) {
+            var ajaxUrl = "{{ url_for('admin.ajax_get_subjects_for_class', class_id=0) }}".slice(0, -1) + classId;
+            $.ajax({
+                url: ajaxUrl, type: 'GET',
+                success: function(data) {
+                    subjectSelectElement.empty().append('<option value="" disabled>--- বিষয় বাছাই করুন ---</option>');
+                    if (data.length > 0) {
+                        $.each(data, function(index, subject) {
+                            var option = $('<option>', { value: subject.id, text: subject.name });
+                            if (selectedSubjectId && subject.id == selectedSubjectId) {
+                                option.prop('selected', true);
+                            }
+                            subjectSelectElement.append(option);
+                        });
+                        subjectSelectElement.prop('disabled', false);
+                    } else {
+                        subjectSelectElement.append('<option value="" disabled>এই শ্রেণীতে কোনো বিষয় নেই</option>').prop('disabled', true);
+                    }
+                },
+                error: function() { subjectSelectElement.empty().append('<option value="" disabled>বিষয় আনতে সমস্যা হয়েছে</option>').prop('disabled', true); }
+            });
+        } else {
+             subjectSelectElement.empty().append('<option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>').prop('disabled', true);
+        }
+    }
+
+    var classSelectorEdit = $('#class_id_selector_edit_short'); 
+    var subjectSelectorEdit = $('#subject_id_edit_short');
+    var initialClassIdEdit = "{{ selected_class_id or '' }}"; 
+    var initialSubjectIdEdit = "{{ selected_subject_id or '' }}"; 
+
+    if (initialClassIdEdit) {
+         populateSubjects(initialClassIdEdit, subjectSelectorEdit, initialSubjectIdEdit);
+    } else {
+        // This case should ideally not happen if a question always has a class via its subject
+        subjectSelectorEdit.prop('disabled', true);
+    }
+});
+</script>
+{% endblock %}

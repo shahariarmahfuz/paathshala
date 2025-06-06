@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block title %}সৃজনশীল প্রশ্নের তালিকা - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>সৃজনশীল প্রশ্নের তালিকা
+            {% if selected_class %}(শ্রেণী: {{ selected_class.name }}){% endif %}
+            {% if selected_subject %}(বিষয়: {{ selected_subject.name }}){% endif %}
+        </h2>
+        <a href="{{ url_for('admin_extra.add_creative_questions') }}" class="btn btn-success">নতুন সৃজনশীল প্রশ্ন যোগ করুন</a>
+    </div>
+
+    <form method="GET" id="filterFormCreativeList" class="mb-3 form-inline">
+        <div class="form-group mr-2">
+            <label for="filter_class_id_creative_list" class="mr-2">শ্রেণী:</label>
+            <select class="form-control form-control-sm" id="filter_class_id_creative_list" name="class_id">
+                <option value="">--- সকল শ্রেণী ---</option>
+                {% for class_item in classes %}
+                <option value="{{ class_item.id }}" {% if selected_class and selected_class.id == class_item.id %}selected{% endif %}>
+                    {{ class_item.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group mr-2">
+            <label for="filter_subject_id_creative_list" class="mr-2">বিষয়:</label>
+            <select class="form-control form-control-sm" id="filter_subject_id_creative_list" name="subject_id" {% if not selected_class %}disabled{% endif %}>
+                <option value="">--- সকল বিষয় ---</option>
+                {% if selected_class and subjects_for_filter %}
+                    {% for sub in subjects_for_filter %}
+                    <option value="{{ sub.id }}" {% if selected_subject and selected_subject.id == sub.id %}selected{% endif %}>
+                        {{ sub.name }}
+                    </option>
+                    {% endfor %}
+                {% elif selected_class %}
+                     <option value="" disabled>এই শ্রেণীতে কোনো বিষয় নেই</option>
+                {% endif %}
+            </select>
+        </div>
+        <button type="button" id="filterBtnCreativeList" class="btn btn-sm btn-info">ফিল্টার করুন</button>
+        <a href="{{ url_for('admin_extra.list_creative_questions') }}" class="btn btn-sm btn-outline-secondary ml-2">ফিল্টার সরান</a>
+    </form>
+
+    {% if questions %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th>আইডি</th>
+                    <th>উদ্দীপক (সংক্ষিপ্ত)</th>
+                    <th>শ্রেণী</th>
+                    <th>বিষয়</th>
+                    <th>অংশ সংখ্যা</th>
+                    <th>কার্যক্রম</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q_item in questions %}
+                <tr>
+                    <td>{{ q_item.id }}</td>
+                    <td>
+                        {% if q_item.stimulus %}
+                            {{ q_item.stimulus.text[:80] }}{% if q_item.stimulus.text|length > 80 %}...{% endif %}
+                        {% else %}
+                            <span class="text-muted">উদ্দীপক নেই</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ q_item.subject.class_level.name }}</td>
+                    <td>{{ q_item.subject.name }}</td>
+                    <td>{{ q_item.get_parts_data_dict_list()|length }} টি</td>
+                    <td>
+                        <a href="{{ url_for('admin_extra.edit_creative_question', q_id=q_item.id) }}" class="btn btn-sm btn-outline-primary mr-1" title="এডিট">[এডিট]</a>
+                        <form method="POST" action="{{ url_for('admin_extra.delete_creative_question', q_id=q_item.id) }}" style="display:inline;" onsubmit="return confirm('এই সৃজনশীল প্রশ্ন টি ডিলিট করতে চান?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="ডিলিট">[ডিলিট]</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3">
+        {% if selected_class or selected_subject %}
+        আপনার নির্বাচিত ফিল্টারে কোনো সৃজনশীল প্রশ্ন খুঁজে পাওয়া যায়নি।
+        {% else %}
+        সিস্টেমে কোনো সৃজনশীল প্রশ্ন খুঁজে পাওয়া যায়নি।
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    var classFilterSelect = $('#filter_class_id_creative_list');
+    var subjectFilterSelect = $('#filter_subject_id_creative_list');
+    var initialClassIdList = classFilterSelect.val();
+    var initialSubjectIdList = "{% if selected_subject %}{{ selected_subject.id }}{% endif %}";
+
+    function populateSubjectsForFilter(classId, selectedSubjectId) {
+        subjectFilterSelect.empty().append('<option value="">লোড হচ্ছে...</option>').prop('disabled', true);
+        if (classId) {
+            var ajaxUrl = "{{ url_for('admin.ajax_get_subjects_for_class', class_id=0) }}".slice(0, -1) + classId;
+            $.ajax({
+                url: ajaxUrl, type: 'GET',
+                success: function(data) {
+                    subjectFilterSelect.empty().append('<option value="">--- সকল বিষয় ---</option>');
+                    if (data.length > 0) {
+                        $.each(data, function(index, subject) {
+                            var option = $('<option>', { value: subject.id, text: subject.name });
+                            if (selectedSubjectId && subject.id == selectedSubjectId) {
+                                option.prop('selected', true);
+                            }
+                            subjectFilterSelect.append(option);
+                        });
+                        subjectFilterSelect.prop('disabled', false);
+                    } else {
+                        subjectFilterSelect.append('<option value="" disabled>এই শ্রেণীতে কোনো বিষয় নেই</option>').prop('disabled', true);
+                    }
+                },
+                error: function() { subjectFilterSelect.empty().append('<option value="">বিষয় আনতে সমস্যা</option>').prop('disabled', true); }
+            });
+        } else {
+            subjectFilterSelect.empty().append('<option value="">--- প্রথমে শ্রেণী বাছাই ---</option>').prop('disabled', true);
+        }
+    }
+
+    classFilterSelect.change(function() {
+        populateSubjectsForFilter($(this).val(), null);
+    });
+
+    if (initialClassIdList) {
+        populateSubjectsForFilter(initialClassIdList, initialSubjectIdList);
+    } else {
+        subjectFilterSelect.prop('disabled', true);
+    }
+
+    $('#filterBtnCreativeList').click(function() {
+        var classId = classFilterSelect.val();
+        var subjectId = subjectFilterSelect.val();
+        var baseUrl = "{{ url_for('admin_extra.list_creative_questions') }}"; 
+
+        if (classId && subjectId) {
+            window.location.href = baseUrl + '/class/' + classId + '/subject/' + subjectId;
+        } else if (classId) {
+            window.location.href = baseUrl + '/class/' + classId;
+        } else {
+            window.location.href = baseUrl; 
+        }
+    });
+});
+</script>
+{% endblock %}

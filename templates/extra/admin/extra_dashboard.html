@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block title %}অন্যান্য প্রশ্নের ড্যাশবোর্ড - MCQ Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">অন্যান্য প্রশ্নের ড্যাশবোর্ড</h2>
+
+    <div class="row">
+        {# সংক্ষিপ্ত প্রশ্ন কার্ড #}
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">মোট সংক্ষিপ্ত প্রশ্ন</h5>
+                            <p class="card-text display-4">{{ short_q_count }}</p>
+                        </div>
+                        {# এখানে আইকন যোগ করা যেতে পারে, যেমন <i class="fas fa-list-ol fa-3x"></i> #}
+                    </div>
+                </div>
+                <a href="{{ url_for('admin_extra.list_short_questions') }}" class="card-footer text-white clearfix small z-1">
+                    <span class="float-left">বিস্তারিত দেখুন</span>
+                    <span class="float-right">
+                        <i class="fas fa-angle-right"></i> {# Font Awesome আইকন, যদি ব্যবহার করেন #}
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        {# অনুধাবনমূলক প্রশ্ন কার্ড #}
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">মোট অনুধাবনমূলক প্রশ্ন</h5>
+                            <p class="card-text display-4">{{ comprehension_q_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ url_for('admin_extra.list_comprehension_questions') }}" class="card-footer text-white clearfix small z-1">
+                    <span class="float-left">বিস্তারিত দেখুন</span>
+                    <span class="float-right">
+                        <i class="fas fa-angle-right"></i>
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        {# সৃজনশীল প্রশ্ন কার্ড #}
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">মোট সৃজনশীল প্রশ্ন</h5>
+                            <p class="card-text display-4">{{ creative_q_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ url_for('admin_extra.list_creative_questions') }}" class="card-footer text-white clearfix small z-1">
+                    <span class="float-left">বিস্তারিত দেখুন</span>
+                    <span class="float-right">
+                        <i class="fas fa-angle-right"></i>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <h4>দ্রুত কার্যক্রম:</h4>
+    <div class="list-group">
+        <a href="{{ url_for('admin_extra.add_short_questions') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-plus-circle mr-2"></i>নতুন সংক্ষিপ্ত প্রশ্ন যোগ করুন
+        </a>
+        <a href="{{ url_for('admin_extra.add_comprehension_questions') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-plus-circle mr-2"></i>নতুন অনুধাবনমূলক প্রশ্ন যোগ করুন
+        </a>
+        <a href="{{ url_for('admin_extra.add_creative_questions') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-plus-circle mr-2"></i>নতুন সৃজনশীল প্রশ্ন যোগ করুন
+        </a>
+    </div>
+     <div class="mt-4">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">প্রধান ড্যাশবোর্ডে ফিরে যান</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block head_extra %}
+{# Font Awesome CSS লিঙ্ক যদি ব্যবহার করতে চান (আইকনগুলির জন্য) #}
+{# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> #}
+<style>
+    .display-4 {
+        font-size: 2.8rem; /* একটু ছোট করা হলো */
+        font-weight: 300;
+        line-height: 1.2;
+    }
+    .card-title {
+        font-weight: 500;
+    }
+    .card-footer {
+        background-color: rgba(0,0,0,.125);
+        border-top: 1px solid rgba(0,0,0,.125);
+    }
+    .card-footer:hover {
+        background-color: rgba(0,0,0,.200);
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
