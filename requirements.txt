@@ -1,0 +1,12 @@
+Flask>=2.0
+Flask-SQLAlchemy>=2.5
+Flask-Login>=0.5
+Werkzeug>=2.0
+Flask-WTF>=1.0 # নতুন যোগ করা হয়েছে CSRF সুরক্ষার জন্য
+pytz>=2023.3 # টাইমজোনের জন্য (বাংলা সময়)
+Babel>=2.11 # লোকাল ফরম্যাটিং এর জন্য (বাংলা সময়)
+# sqlalchemy # এটি Flask-SQLAlchemy এর সাথে আসে, আলাদাভাবে দরকার নাও হতে পারে
+flask-wtf
+pytz
+sqlalchemy
+psycopg2-binary
