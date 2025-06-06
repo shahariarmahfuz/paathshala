@@ -1,0 +1,671 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary-font: 'Poppins', 'Hind Siliguri', sans-serif;
+    --secondary-font: 'Hind Siliguri', sans-serif;
+
+    --bs-primary: #007bff; /* Bootstrap primary, not used in premium theme directly */
+    --bs-primary-rgb: 0,123,255;
+
+    /* রঙের স্কিম আপডেট করা হয়েছে */
+    --premium-dark: #000000; /* ফুটার এবং ন্যাভবারের জন্য সম্পূর্ণ কালো */
+
+    /* নীল রঙের পরিবর্তে সিলভার/ধূসর ব্যবহার করা হচ্ছে */
+    --premium-primary: #C0C0C0; /* ছিল #3A5795 (নীল), এখন সিলভার */
+    --premium-primary-dark: #808080; /* ছিল #2c4372 (গাঢ় নীল), এখন মাঝারি ধূসর */
+
+    --premium-secondary: #6c757d; /* ধূসর (বর্তমানে ব্যবহৃত হচ্ছে না) */
+    --premium-accent: #FFC107; /* উজ্জ্বল হলুদ */
+    --premium-accent-dark: #e0a800;
+    --premium-accent-rgb: 255,193,7;
+    --premium-light: #f8f9fa;
+    /* --premium-dark এর সংজ্ঞা উপরে --premium-dark: #000000; হিসেবে দেওয়া হয়েছে */
+    --premium-success: #28a745;
+    --premium-info: #17a2b8;
+    --premium-warning: #ffc107;
+    --premium-danger: #dc3545;
+
+    --premium-gold: #D4AF37;
+    --premium-silver: #C0C0C0; /* এই ভেরিয়েবলটি --premium-primary এর জন্য ব্যবহৃত হতে পারে */
+
+    /* --premium-primary পরিবর্তিত হওয়ায় এই গ্রেডিয়েন্টটিও পরিবর্তিত হবে */
+    --gradient-primary: linear-gradient(135deg, var(--premium-primary) 0%, var(--premium-primary-dark) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--premium-accent) 0%, var(--premium-gold) 100%);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.07);
+
+    --border-radius-sm: 0.25rem;
+    --border-radius-md: 0.5rem;
+    --border-radius-lg: 0.75rem;
+
+    --transition-fast: all 0.2s ease-in-out;
+    --transition-normal: all 0.3s ease-in-out;
+    --transition-slow: all 0.5s ease-in-out;
+
+    --body-bg: #F0F2F5;
+    --card-bg: #FFFFFF;
+    --text-color: #333333; /* --premium-dark (#000000) এর সাথে কনট্রাস্টের জন্য প্রয়োজন অনুযায়ী অ্যাডজাস্ট করতে হতে পারে */
+    --text-color-muted: #666666;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--primary-font);
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-size: 16px;
+}
+
+/* Enhanced Navbar - Background changed to full black */
+.navbar {
+    background: var(--premium-dark); /* সম্পূর্ণ কালো */
+    box-shadow: var(--shadow-md);
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.navbar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--premium-accent);
+}
+
+.navbar-brand {
+    font-family: var(--primary-font);
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    transition: var(--transition-fast);
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.navbar-brand:hover {
+    color: var(--premium-accent) !important;
+    transform: scale(1.03);
+}
+
+.navbar-brand i {
+    color: var(--premium-accent);
+    margin-right: 10px;
+    font-size: 1.6rem;
+}
+
+.navbar-nav .nav-link {
+    font-family: var(--primary-font);
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    padding: 0.6rem 1.1rem;
+    margin: 0 0.2rem;
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-fast);
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.navbar-nav .nav-link i {
+    margin-right: 8px;
+    font-size: 1.05rem;
+    opacity: 0.9;
+    /* Icon color can be explicitly set if needed, e.g., color: white; */
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-item.show .nav-link {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1); /* কালো ব্যাকগ্রাউন্ডের উপর হালকা হোভার */
+    transform: translateY(-2px);
+}
+
+.navbar-nav .nav-link.active {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.15); /* কালো ব্যাকগ্রাউন্ডের উপর অ্যাক্টিভ লিঙ্ক */
+    font-weight: 600;
+}
+
+.navbar-nav .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: var(--premium-accent);
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-normal);
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+    width: 70%;
+}
+
+.navbar-toggler {
+    border-color: rgba(255,255,255,0.3);
+    padding: .25rem .6rem;
+}
+.navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(var(--premium-accent-rgb),0.5);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    width: 1.3em;
+    height: 1.3em;
+}
+
+.navbar-collapse {
+    transition: height 0.3s ease-in-out;
+}
+
+.navbar-nav:last-child {
+    margin-top: 0.5rem;
+}
+
+.navbar-nav:last-child .nav-item {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.navbar-nav:last-child .navbar-text {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    color: rgba(255,255,255,0.95) !important;
+}
+.navbar-nav:last-child .btn-outline-light {
+    display: block;
+    width: auto;
+    margin: 0.5rem auto;
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500;
+}
+
+.dropdown-menu {
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    border: none;
+    padding: 0.75rem 0;
+    background: var(--card-bg); /* সাদা ড্রপডাউন */
+    min-width: 260px;
+    margin-top: 0.5rem;
+    animation: fadeInDropdown 0.3s ease-out;
+}
+
+@keyframes fadeInDropdown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+    font-family: var(--primary-font);
+    padding: 0.7rem 1.5rem;
+    font-weight: 500;
+    color: var(--premium-dark); /* ড্রপডাউনে লেখার রঙ কালো (#000000) */
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.dropdown-item i {
+    width: 22px;
+    margin-right: 12px;
+    color: var(--premium-primary); /* পরিবর্তিত রঙ - সিলভার */
+    transition: var(--transition-fast);
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background: var(--premium-accent); /* হোভারে হলুদ ব্যাকগ্রাউন্ড */
+    color: var(--premium-dark); /* হোভারে লেখার রঙ কালো */
+}
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--premium-accent-dark); /* অ্যাক্টিভ অবস্থায় গাঢ় হলুদ */
+    color: var(--premium-dark);
+}
+
+.dropdown-item:hover i, .dropdown-item:focus i,
+.dropdown-item.active i, .dropdown-item:active i {
+    color: var(--premium-dark); /* হোভার/অ্যাক্টিভ অবস্থায় আইকনের রঙ কালো */
+}
+
+.dropdown-divider {
+    margin: 0.6rem 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+.dropdown-header {
+    font-family: var(--primary-font);
+    font-weight: 700;
+    color: var(--premium-primary-dark); /* পরিবর্তিত রঙ - মাঝারি ধূসর */
+    padding: 0.6rem 1.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.navbar-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    margin-right: 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-outline-light {
+    border-color: rgba(255,255,255,0.5) !important;
+    color: rgba(255,255,255,0.9) !important;
+    transition: var(--transition-fast) !important;
+    font-weight: 500;
+    padding: 0.375rem 0.85rem !important;
+    font-size: 0.85rem !important;
+}
+.btn-outline-light:hover {
+    border-color: white !important;
+    background-color: rgba(255,255,255,0.2) !important; /* কালো ব্যাকগ্রাউন্ডে মানানসই হোভার */
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+.container {
+    max-width: 1280px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Premium Footer - Background changed to full black */
+.footer {
+    background: var(--premium-dark); /* সম্পূর্ণ কালো */
+    color: rgba(255, 255, 255, 0.8);
+    padding: 4.5rem 0 2rem;
+    position: relative;
+    overflow: hidden;
+    margin-top: auto;
+    border-top: 5px solid var(--premium-accent);
+}
+
+.footer-decoration {
+    position: absolute;
+    opacity: 0.07;
+    z-index: 1;
+    color: var(--premium-accent);
+    pointer-events: none;
+    transition: transform 0.5s ease-out;
+}
+
+.footer-decoration.decoration-1 {
+    top: 15%;
+    left: 5%;
+    font-size: 7rem;
+    transform: rotate(-15deg);
+}
+
+.footer-decoration.decoration-2 {
+    bottom: 20%;
+    right: 8%;
+    font-size: 5rem;
+    transform: rotate(10deg);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3.5rem;
+    margin-bottom: 3.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.footer-column h3 {
+    font-family: var(--primary-font);
+    font-size: 1.45rem;
+    margin-bottom: 1.85rem;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.65rem;
+    color: white;
+    font-weight: 600;
+}
+
+.footer-column h3::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--premium-accent);
+    border-radius: var(--border-radius-sm);
+}
+
+.footer-column p {
+    margin-bottom: 1.25rem;
+    line-height: 1.85;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 0.95rem;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.footer-links a i.fas.fa-chevron-right {
+    margin-right: 10px;
+    width: 18px;
+    color: var(--premium-accent);
+    transition: var(--transition-fast);
+    font-size: 0.8em;
+}
+
+.footer-links a:hover {
+    color: white;
+    transform: translateX(6px);
+}
+
+.footer-links a:hover i.fas.fa-chevron-right {
+    color: white;
+    transform: scale(1.1);
+}
+
+.footer-contact {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-contact li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.15rem;
+    font-size: 0.95rem;
+}
+
+.footer-contact i {
+    color: var(--premium-accent);
+    margin-right: 15px;
+    font-size: 1.1rem;
+    min-width: 22px;
+    margin-top: 4px;
+}
+
+.footer-contact span {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+}
+
+.social-links {
+    display: flex;
+    gap: 0.9rem;
+    margin-top: 1.8rem;
+    flex-wrap: wrap;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12); /* কালো ব্যাকগ্রাউন্ডের উপর মানানসই */
+    color: white;
+    transition: var(--transition-normal);
+    font-size: 1.15rem;
+    text-decoration: none;
+    box-shadow: none;
+}
+
+.social-links a:hover {
+    background: var(--premium-accent);
+    color: var(--premium-dark); /* হোভারে আইকনের রঙ কালো */
+    transform: translateY(-4px) scale(1.1);
+    box-shadow: var(--shadow-sm);
+}
+
+.footer-badge {
+    background: var(--gradient-accent);
+    color: var(--premium-dark); /* ব্যাজের লেখার রঙ কালো */
+    font-weight: 600;
+    padding: 0.65rem 1.25rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+    box-shadow: none;
+    transition: var(--transition-normal);
+}
+.footer-badge:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-sm);
+}
+
+.footer-badge i.fas.fa-award {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+.copyright {
+    text-align: center;
+    padding-top: 2.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* কালো ব্যাকগ্রাউন্ডে বর্ডার */
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    position: relative;
+    z-index: 2;
+}
+.copyright p {
+    margin-bottom: 0.3rem;
+}
+
+.footer-column h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+.footer-column .input-group {
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+}
+.footer-column .input-group .form-control {
+    background-color: rgba(255,255,255,0.15); /* কালো ব্যাকগ্রাউন্ডে মানানসই */
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-right: none;
+    padding: 0.8rem 1.1rem;
+    font-size: 0.95rem;
+    transition: var(--transition-fast);
+}
+.footer-column .input-group .form-control::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+.footer-column .input-group .form-control:focus {
+    background-color: rgba(255,255,255,0.2);
+    box-shadow: 0 0 0 0.2rem rgba(var(--premium-accent-rgb),0.3);
+    border-color: var(--premium-accent);
+    color: white;
+}
+.footer-column .input-group .btn {
+    background-color: var(--premium-accent);
+    color: var(--premium-dark); /* বাটনের লেখার রঙ কালো */
+    border: 1px solid var(--premium-accent);
+    padding: 0.8rem 1.1rem;
+    transition: var(--transition-fast);
+    font-weight: 600;
+}
+.footer-column .input-group .btn:hover {
+    background-color: var(--premium-accent-dark);
+    border-color: var(--premium-accent-dark);
+}
+.footer-column .input-group .btn i.fas.fa-paper-plane {
+    font-size: 1rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background-color: var(--premium-dark); /* সম্পূর্ণ কালো */
+        margin-top: 0.5rem;
+        border-radius: var(--border-radius-md);
+        padding: 0.5rem 0;
+        box-shadow: var(--shadow-md);
+    }
+    .navbar-nav {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        align-items: flex-start;
+    }
+    .navbar-nav .nav-item {
+        margin-bottom: 0.3rem;
+        width: 100%;
+    }
+    .navbar-nav .nav-link {
+        padding: 0.8rem 1.2rem;
+        border-radius: 0;
+    }
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .navbar-nav .nav-link::after {
+        width: 0;
+    }
+    .navbar-brand {
+        margin-left: 0.5rem;
+    }
+    .navbar-nav:last-child {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .navbar-nav:last-child .navbar-text {
+        padding: 0.8rem 1.2rem;
+        text-align: left;
+        margin-bottom: 0.3rem;
+    }
+    .navbar-nav:last-child .nav-item {
+        justify-content: flex-start;
+    }
+    .navbar-nav:last-child .btn-outline-light {
+        margin: 0.5rem 1.2rem;
+        display: inline-block;
+        width: auto;
+    }
+    .footer-content {
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    body {
+        font-size: 15px;
+    }
+    .navbar-brand {
+        font-size: 1.5rem;
+        margin-left: 0.25rem;
+    }
+    .navbar-brand i {
+        font-size: 1.4rem;
+    }
+    .footer {
+        padding: 3.5rem 0 1.5rem;
+    }
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2.8rem;
+    }
+    .footer-column {
+        text-align: center;
+    }
+    .footer-column h3::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .footer-links, .footer-contact {
+        display: inline-block;
+        text-align: left;
+    }
+    .footer-links a, .footer-contact li {
+        justify-content: flex-start;
+    }
+    .social-links {
+        justify-content: center;
+    }
+    .footer-column .input-group {
+        max-width: 350px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .copyright {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .navbar-brand {
+        font-size: 1.25rem;
+        margin-left: 0;
+    }
+    .navbar-nav:last-child .navbar-text {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
+    .navbar-nav:last-child .btn-outline-light {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.8rem !important;
+        width: calc(100% - 2rem);
+        text-align: center;
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+    .footer-column h3 {
+        font-size: 1.3rem;
+    }
+    .footer-column p, .footer-links a, .footer-contact li, .footer-column .input-group .form-control {
+        font-size: 0.9rem;
+    }
+}
