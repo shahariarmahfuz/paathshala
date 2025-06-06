@@ -1,0 +1,370 @@
+{% extends "layout.html" %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-rgb: 67, 97, 238;
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --success: #4cc9f0;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.08);
+        --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background-color: #f0f4f8;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .form-selection-container {
+        padding: 40px 0;
+    }
+
+    .form-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: var(--shadow-medium);
+        padding: 30px 35px;
+        max-width: 800px;
+        margin: 0 auto;
+        border-top: 5px solid var(--primary);
+    }
+
+    .form-card-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .form-card-header h3 {
+        font-size: 28px;
+        color: var(--secondary);
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+    }
+    .form-card-header h3 i {
+        margin-right: 12px;
+        font-size: 26px;
+        color: var(--primary);
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+    .form-group label i {
+        margin-right: 8px;
+        color: var(--primary);
+        font-size: 1.1em;
+    }
+
+    .form-control { /* <select> এবং <input> উভয়ের জন্য */
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px; /* উল্লম্ব প্যাডিং সামান্য কমানো হলো */
+        font-size: 16px;
+        line-height: 1.5; /* সুস্পষ্ট লাইন-হাইট সেট করা হলো */
+        height: auto; /* টেক্সট ক্লিপিং সমস্যা সমাধানের জন্য */
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        width: 100%;
+        background-color: #fff; /* নিশ্চিত করা যে ব্যাকগ্রাউন্ড সাদা */
+    }
+    .form-control:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+    }
+    .form-control:disabled {
+        background-color: #e9ecef;
+        opacity: 0.7;
+    }
+
+    select.form-control { /* শুধুমাত্র <select> এর জন্য বিশেষ স্টাইল */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E');
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 16px 16px;
+        padding-right: 40px; /* অ্যারোর জন্য জায়গা */
+        padding-top: 10px; /* প্যাডিং সামঞ্জস্যপূর্ণ রাখা */
+        padding-bottom: 10px;
+    }
+    /* কিছু ব্রাউজারে সিলেক্টের টেক্সট সেন্টারিং সমস্যা সমাধানের জন্য */
+    select.form-control option {
+        background-color: #fff;
+        color: #333;
+    }
+
+
+    .button-group-label {
+        display: block;
+        margin-bottom: 10px;
+    }
+    .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .button-group input[type="radio"] {
+        display: none;
+    }
+    .button-group label.btn-option {
+        padding: 10px 18px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 15px;
+        background-color: #f8f9fa;
+        color: #495057;
+        text-align: center;
+        flex-grow: 1; 
+    }
+    .button-group input[type="radio"]:checked + label.btn-option {
+        background-color: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+    }
+    .button-group label.btn-option:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+    }
+    .button-group input[type="radio"]:checked + label.btn-option:hover {
+        background-color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    .btn-submit-exam {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 12px 30px;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: var(--shadow-light);
+        width: 100%;
+        margin-top: 20px;
+    }
+    .btn-submit-exam:hover {
+        background: linear-gradient(135deg, var(--secondary), var(--accent));
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+    .btn-submit-exam i {
+        margin-right: 8px;
+    }
+
+    #timed_options_specific_public {
+        background-color: #f0f4f8;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 15px;
+        border: 1px solid #dde4eb;
+    }
+    #timed_options_specific_public .form-group {
+        margin-bottom: 0;
+    }
+    /* সময়ের অপশন যদি দুটি হয়, তাহলে তারা যেন সুন্দরভাবে জায়গা নেয় */
+    #timed_options_specific_public .button-group label.btn-option {
+        flex-basis: calc(50% - 5px); /* দুটি কলাম, গ্যাপ অ্যাডজাস্ট করে */
+    }
+
+
+    @media (max-width: 768px) {
+        .form-card { padding: 25px 20px; }
+        .form-card-header h3 { font-size: 24px; }
+        .form-card-header h3 i { font-size: 22px; }
+        .form-group { margin-bottom: 20px; }
+        .form-row .form-group.col-md-6 { margin-bottom: 20px; }
+        .form-row .form-group.col-md-6:last-child { margin-bottom: 0; }
+
+        .button-group label.btn-option {
+            padding: 8px 15px;
+            font-size: 14px;
+            min-width: 80px;
+        }
+    }
+     @media (max-width: 576px) {
+        .form-card { padding: 20px 15px; border-radius: 12px; }
+        .form-card-header h3 { font-size: 22px; }
+        .form-control, select.form-control { font-size: 15px; padding: 10px 12px; }
+        select.form-control { padding-right: 35px; background-position: right 12px center; }
+        .btn-submit-exam { font-size: 17px; padding: 10px 25px; }
+        .button-group { gap: 8px; }
+        .button-group label.btn-option { /* এই স্টাইলটি সাধারণ বাটন গ্রুপের জন্য */
+            flex-basis: calc(50% - 4px); 
+            flex-grow: 0;
+        }
+         /* যদি একটি নির্দিষ্ট বাটন গ্রুপে (যেমন সময়) কম আইটেম থাকে, তাদের জন্য বিশেষ স্টাইল */
+        /* #timed_options_specific_public .button-group label.btn-option {
+             flex-basis: calc(50% - 4px); 
+        } */
+    }
+
+</style>
+{% endblock %}
+
+{% block title %}MCQ পরীক্ষা সেটআপ - {{ site_name | default("MCQ Platform") }}{% endblock %}
+
+{% block content %}
+<div class="form-selection-container">
+    <div class="form-card">
+        <div class="form-card-header">
+            <h3><i class="fas fa-cogs"></i>MCQ পরীক্ষার জন্য প্রস্তুতি</h3>
+        </div>
+        <div class="form-card-body">
+            <form method="POST" action="{{ url_for('public.mcq_selection') }}" id="mcqSelectionFormPublic">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="class_id_selector_public"><i class="fas fa-graduation-cap"></i>শ্রেণী নির্বাচন করুন:</label>
+                        <select class="form-control" id="class_id_selector_public" name="class_id_selector_public" required>
+                            <option value="" disabled selected>--- শ্রেণী বাছাই করুন ---</option>
+                            {% for class_item in classes %}
+                            <option value="{{ class_item.id }}">{{ class_item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="subject_id_public"><i class="fas fa-book-open"></i>বিষয় নির্বাচন করুন:</label>
+                        <select class="form-control" id="subject_id_public" name="subject_id_public" required disabled>
+                            <option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="button-group-label" for="mode_public_group"><i class="fas fa-sliders-h"></i>পরীক্ষার ধরণ:</label>
+                    <div class="button-group" id="mode_public_group">
+                        <input type="radio" id="mode_normal_public" name="mode" value="normal" checked required>
+                        <label for="mode_normal_public" class="btn-option">সাধারণ (Normal)</label>
+
+                        <input type="radio" id="mode_timed_public" name="mode" value="timed" required>
+                        <label for="mode_timed_public" class="btn-option">সময়ভিত্তিক (Timed)</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="num_questions_public"><i class="fas fa-list-ol"></i>প্রশ্নের সংখ্যা:</label>
+                    <input type="number" class="form-control" id="num_questions_public" name="num_questions" min="1" max="50" value="10" required>
+                </div>
+
+                <div id="timed_options_specific_public" style="display: none;">
+                    <div class="form-group">
+                        <label class="button-group-label" for="time_per_question_public_group"><i class="fas fa-hourglass-half"></i>প্রতি প্রশ্নের জন্য সময়:</label>
+                        <div class="button-group" id="time_per_question_public_group">
+                            <input type="radio" id="time_30s_public" name="time_per_question" value="30">
+                            <label for="time_30s_public" class="btn-option">৩০ সেকেন্ড</label>
+
+                            <input type="radio" id="time_60s_public" name="time_per_question" value="60" checked>
+                            <label for="time_60s_public" class="btn-option">৬০ সেকেন্ড</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-submit-exam">
+                    <i class="fas fa-arrow-circle-right"></i>পরীক্ষা শুরু করুন
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+$(document).ready(function() {
+    $('#class_id_selector_public').change(function() {
+        var classId = $(this).val();
+        var subjectSelect = $('#subject_id_public');
+        var defaultOption = '<option value="" disabled selected>--- বিষয় বাছাই করুন ---</option>';
+        var loadingOption = '<option value="" disabled selected>লোড হচ্ছে...</option>';
+        var noSubjectOption = '<option value="" disabled>এই শ্রেণীতে কোনো বিষয় উপলব্ধ নেই</option>';
+        var errorOption = '<option value="" disabled selected>বিষয় আনতে সমস্যা হয়েছে</option>';
+
+        subjectSelect.empty().append(loadingOption).prop('disabled', true);
+
+        if (classId) {
+            var url = "{{ url_for('public.ajax_public_get_subjects_for_class', class_id=0) }}";
+            url = url.substring(0, url.length - 1) + classId;
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    subjectSelect.empty().append(defaultOption);
+                    if (data && data.length > 0) {
+                        $.each(data, function(index, subject) {
+                            subjectSelect.append($('<option>', {
+                                value: subject.id,
+                                text: subject.name
+                            }));
+                        });
+                        subjectSelect.prop('disabled', false);
+                    } else {
+                        subjectSelect.append(noSubjectOption);
+                        subjectSelect.prop('disabled', true);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("AJAX Error: ", textStatus, errorThrown);
+                    console.error("Response Text: ", jqXHR.responseText);
+                    subjectSelect.empty().append(errorOption);
+                    subjectSelect.prop('disabled', true);
+                }
+            });
+        } else {
+            subjectSelect.empty().append('<option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>').prop('disabled', true);
+        }
+    });
+
+    $('input[name="mode"]').change(function() {
+        if ($(this).val() === 'timed') {
+            $('#timed_options_specific_public').slideDown();
+        } else {
+            $('#timed_options_specific_public').slideUp();
+        }
+    });
+
+    if ($('input[name="mode"]:checked').val() === 'timed') {
+        $('#timed_options_specific_public').show();
+    } else {
+        $('#timed_options_specific_public').hide();
+    }
+
+    $('#mcqSelectionFormPublic').submit(function(e) {
+        var subjectValue = $('#subject_id_public').val();
+        if (!subjectValue && $('#class_id_selector_public').val()) {
+            alert('অনুগ্রহ করে একটি বিষয় নির্বাচন করুন।');
+            e.preventDefault();
+            $('#subject_id_public').focus();
+        }
+
+        if ($('input[name="mode"]:checked').val() === 'timed') {
+            if (!$('input[name="time_per_question"]:checked').val()) {
+                 alert('অনুগ্রহ করে প্রতি প্রশ্নের জন্য সময় নির্বাচন করুন।');
+                 e.preventDefault();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

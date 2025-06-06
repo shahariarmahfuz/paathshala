@@ -1,0 +1,406 @@
+{% extends "layout.html" %}
+
+{% block title %}MCQ প্রশ্ন - {{ site_name | default("MCQ Platform") }}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-rgb: 67, 97, 238;
+        --primary-very-light: rgba(var(--primary-rgb), 0.05); /* আগের চেয়ে আরও হালকা */
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --success: #28a745;
+        --success-rgb: 40, 167, 69;
+        --success-light: rgba(var(--success-rgb), 0.08); /* আগের চেয়ে আরও হালকা */
+        --danger: #dc3545;
+        --danger-rgb: 220, 53, 69;
+        --danger-light: rgba(var(--danger-rgb), 0.08); /* আগের চেয়ে আরও হালকা */
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --light-gray: #e9ecef;
+        --border-color: #dee2e6; 
+        --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.07);
+        --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background-color: #f0f4f8;
+        color: var(--dark);
+        line-height: 1.6;
+    }
+
+    .mcq-page-container { padding: 30px 0; }
+    .mcq-container.card {
+        background: #ffffff; border-radius: 16px; box-shadow: var(--shadow-medium);
+        max-width: 850px; margin: 0 auto; border: none;
+    }
+    .mcq-container .card-header {
+        background-color: var(--primary); color: white; padding: 15px 25px;
+        border-bottom: none; border-radius: 16px 16px 0 0;
+    }
+    .mcq-container .card-header h5 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0; }
+    .timer {
+        font-size: 1.15rem; font-weight: 600; color: white;
+        background-color: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+    }
+    .timer #timeDisplay { font-weight: 700; }
+    .mcq-container .card-body { padding: 25px 30px; }
+    .previously-done-status small { color: var(--info); display: block; margin-bottom: 15px; font-style: italic; }
+
+    .stimulus-section {
+        background-color: var(--light-gray); border-left: 5px solid var(--accent);
+        padding: 20px; border-radius: 8px; margin-bottom: 25px;
+    }
+    .stimulus-section h6 { font-weight: 700; color: var(--dark); margin-bottom: 10px; font-size: 1.1rem; }
+    .stimulus-section p { font-size: 1rem; color: #495057; margin-bottom: 0; }
+
+    .question-section { font-size: 1.2rem; margin-bottom: 25px; }
+    .question-section p.font-weight-bold { color: var(--dark); line-height: 1.5; }
+
+    /* কাস্টম রেডিও বাটনের জন্য নতুন স্টাইল */
+    .form-check {
+        border: 2px solid var(--border-color); /* ডিফল্ট বর্ডার ২ পিক্সেল এবং হালকা রঙের */
+        border-radius: 10px; /* বর্ডার রেডিয়াস সামান্য বৃদ্ধি */
+        margin-bottom: 12px !important;
+        transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        background-color: #fff;
+        position: relative; /* ::before pseudo-element এর জন্য */
+    }
+    .form-check:hover {
+        background-color: var(--light);
+        border-color: var(--accent); /* হোভারে বর্ডার রঙ পরিবর্তন */
+    }
+
+    .form-check-input[type="radio"] {
+        opacity: 0; position: absolute; width: 0; height: 0;
+        margin: 0; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+    }
+
+    .form-check-label {
+        display: block;
+        /* প্যাডিং: বর্ডার 2px, আইকনের জন্য বামে 42px (14px আইকন পজিশন + 14px গ্যাপ + 14px টেক্সট শুরু ) */
+        padding: 10px 15px 10px 42px; 
+        font-size: 1.05rem;
+        color: #495057;
+        cursor: pointer;
+        border-radius: 7px; /* form-check এর ভেতরের রেডিয়াস (যদি বর্ডার 2px হয়) */
+        position: relative;
+        transition: color 0.2s ease, font-weight 0.2s ease;
+    }
+    /* ডিফল্ট অবস্থায় আইকন (অনির্বাচিত বৃত্ত) */
+    .form-check-label::before {
+        content: '\f111'; /* Font Awesome circle icon (far fa-circle) */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 400; /* Regular weight */
+        color: var(--border-color); /* ডিফল্ট আইকনের রঙ বর্ডারের সাথে মিলবে */
+        position: absolute;
+        left: 14px; /* আইকনের পজিশন (প্যাডিং ও বর্ডার অনুযায়ী) */
+        top: 50%;
+        transform: translateY(-50%) scale(0.9); /* আইকন স্কেল সামান্য ছোট */
+        font-size: 1.2em; /* আইকনের আকার সামান্য বড় */
+        transition: content 0.2s ease, color 0.2s ease, font-weight 0.2s ease, transform 0.2s ease;
+    }
+
+    /* যখন রেডিও বাটন সিলেক্ট করা হবে */
+    .form-check-input[type="radio"]:checked + .form-check-label {
+        border-color: var(--primary); /* শুধুমাত্র বর্ডার রঙ পরিবর্তন হবে */
+        background-color: var(--primary-very-light); /* খুবই হালকা ব্যাকগ্রাউন্ড */
+        color: var(--primary);
+        font-weight: 600; /* টেক্সট সামান্য বোল্ড */
+    }
+    .form-check-input[type="radio"]:checked + .form-check-label::before {
+        content: '\f058'; /* Font Awesome check-circle icon (fas fa-check-circle) */
+        font-weight: 900; /* Solid weight */
+        color: var(--primary); /* আইকনের রঙ প্রাইমারি হবে */
+        transform: translateY(-50%) scale(1); /* সিলেক্টেড আইকন সম্পূর্ণ আকারে */
+    }
+
+    /* ফোকাস স্টাইল */
+    .form-check-input[type="radio"]:focus + .form-check-label {
+        /* বর্ডারের রঙ পরিবর্তন করে ফোকাস দেখানো হচ্ছে, কারণ box-shadow বর্ডারের উপর চলে যেতে পারে */
+        border-color: var(--accent); 
+    }
+    /* বিকল্প: যদি box-shadow ব্যবহার করতে চান */
+    /* .form-check-input[type="radio"]:focus + .form-check-label {
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.30);
+        outline-offset: 1px; 
+    } */
+
+
+    /* ডিজেবলড অবস্থায় */
+    .form-check-input[type="radio"]:disabled + .form-check-label {
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+    .form-check-input[type="radio"]:disabled + .form-check-label::before {
+        opacity: 0.65;
+    }
+
+
+    /* উত্তর জমা দেওয়ার পর সঠিক/ভুল উত্তরের স্টাইল */
+    .form-check-input[type="radio"]:disabled + .form-check-label.text-success {
+        background-color: var(--success-light) !important;
+        border-color: var(--success) !important;
+        color: var(--success) !important;
+        font-weight: 600;
+        opacity: 1 !important;
+    }
+    .form-check-input[type="radio"]:disabled + .form-check-label.text-success::before {
+        content: '\f058'; /* check-circle */
+        font-weight: 900;
+        color: var(--success) !important;
+        opacity: 1 !important;
+        transform: translateY(-50%) scale(1);
+    }
+
+    .form-check-input[type="radio"]:disabled + .form-check-label.text-danger {
+        background-color: var(--danger-light) !important;
+        border-color: var(--danger) !important;
+        color: var(--danger) !important;
+        font-weight: 600;
+        opacity: 1 !important;
+    }
+    .form-check-input[type="radio"]:disabled + .form-check-label.text-danger::before {
+        content: '\f057'; /* times-circle */
+        font-weight: 900;
+        color: var(--danger) !important;
+        opacity: 1 !important;
+        transform: translateY(-50%) scale(1);
+    }
+    .form-check-input[type="radio"]:checked:disabled + .form-check-label.text-danger::before {
+        content: '\f057'; 
+        color: var(--danger) !important;
+    }
+    .form-check-input[type="radio"]:checked:disabled + .form-check-label.text-success::before {
+        content: '\f058';
+        color: var(--success) !important;
+    }
+
+
+    .statements {
+        background-color: var(--light-gray); border: 1px solid #ced4da;
+        border-radius: 8px; padding: 15px; margin-bottom: 20px;
+    }
+    .statements strong { display: block; margin-bottom: 8px; color: var(--dark); }
+    .statements span { display: block; margin-bottom: 5px; font-size: 0.95rem; color: #495057; }
+
+    #submitBtn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;
+        padding: 10px 25px; font-size: 1.1rem; font-weight: 600;
+        border-radius: 8px; border: none; transition: all 0.3s ease;
+        box-shadow: var(--shadow-light); width: 100%; margin-top: 20px;
+    }
+    #submitBtn:hover {
+        background: linear-gradient(135deg, var(--secondary), var(--accent));
+        transform: translateY(-2px); box-shadow: var(--shadow-medium);
+    }
+    #submitBtn.btn-info { background: linear-gradient(135deg, var(--info), var(--accent)) !important; }
+    #submitBtn.btn-info:hover { background: linear-gradient(135deg, var(--accent), var(--info)) !important; }
+
+    #feedback .alert {
+        border-radius: 8px; font-size: 1rem; padding: 12px 18px; margin-bottom: 0;
+    }
+    #feedback .alert-success { background-color: #d4edda; border-color: #c3e6cb; color: #155724;}
+    #feedback .alert-danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;}
+    #feedback .alert-warning { background-color: #fff3cd; border-color: #ffeeba; color: #856404;}
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .mcq-container .card-header { padding: 12px 20px; flex-direction: column; align-items: flex-start; gap: 8px; }
+        .mcq-container .card-header h5 { font-size: 1.1rem; }
+        .timer { font-size: 1rem; padding: 4px 10px; }
+        .mcq-container .card-body { padding: 20px; }
+        .stimulus-section { padding: 15px; margin-bottom: 20px; }
+        .question-section { font-size: 1.1rem; margin-bottom: 20px; }
+        .form-check-label { padding: 10px 15px 10px 40px; font-size: 1rem; } /* Padding for icon */
+        .form-check-label::before { left: 12px; font-size: 1.1em; } /* Icon position */
+        #submitBtn { font-size: 1rem; padding: 10px 20px; }
+    }
+    @media (max-width: 576px) {
+        .mcq-page-container { padding: 15px 0; }
+        .mcq-container .card-header { padding: 10px 15px; }
+        .mcq-container .card-body { padding: 15px; }
+        .stimulus-section { padding: 12px; font-size: 0.95rem; }
+        .stimulus-section h6 { font-size: 1rem; }
+        .stimulus-section p { font-size: 0.9rem; }
+        .question-section { font-size: 1.05rem; }
+        .question-section p.font-weight-bold { line-height: 1.4; }
+        .form-check-label { font-size: 0.95rem; padding: 10px 12px 10px 38px; } /* Padding for icon */
+        .form-check-label::before { left: 10px; font-size: 1em; } /* Icon position */
+        .statements span { font-size: 0.9rem; }
+        #submitBtn { font-size: 0.95rem; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mcq-page-container">
+    <div class="mcq-container card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-question-circle" style="margin-right: 8px;"></i>প্রশ্ন {{ current_q_number }}/{{ total_questions }}</h5>
+            {% if mode == 'timed' and time_limit %}
+            <div class="timer">
+                <i class="fas fa-stopwatch" style="margin-right: 5px;"></i>সময় বাকি: <span id="timeDisplay">{{ time_limit }}</span> সেকেন্ড
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if previously_done_status %}
+                <p class="previously-done-status"><small><i class="fas fa-info-circle" style="margin-right: 5px;"></i>{{ previously_done_status }}</small></p>
+            {% endif %}
+
+            {% if stimulus_text %}
+            <div class="stimulus-section my-3">
+                <h6><i class="fas fa-file-alt" style="margin-right: 8px;"></i>উদ্দীপক:</h6>
+                <p style="white-space: pre-wrap;">{{ stimulus_text }}</p>
+            </div>
+            {% endif %}
+
+            <div class="question-section my-3">
+                <p class="font-weight-bold">{{ mcq.question_text | safe }}</p>
+            </div>
+
+            <form id="mcqForm" method="POST" action="{{ url_for('public.submit_answer') }}">
+                <input type="hidden" name="mcq_id" value="{{ mcq.id }}">
+
+                {% if mcq.question_type == 'single_correct' %}
+                    {% for key, value in options_data.options.items() %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="answer" id="option_{{ key }}" value="{{ key }}" required>
+                        <label class="form-check-label" for="option_{{ key }}">{{ key | upper }}. {{ value }}</label>
+                    </div>
+                    {% endfor %}
+                {% elif mcq.question_type == 'multi_statement' %}
+                    <div class="statements mb-3">
+                        <strong><i class="fas fa-list-ul" style="margin-right: 8px;"></i>বিবৃতিসমূহ:</strong>
+                        {% for key, text in options_data.statements.items() %}
+                            <span>{{ key | upper }}. {{ text }}</span>
+                        {% endfor %}
+                    </div>
+                    <strong style="display:block; margin-bottom:10px; font-size: 1.05rem;">নিচের কোনটি সঠিক?</strong>
+                    {% for key, statements_keys in options_data.option_map.items() %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="answer" id="option_{{ key }}" value="{{ key }}" required>
+                        <label class="form-check-label" for="option_{{ key }}">
+                            {{ key | upper }}) {% for stmt_key in statements_keys %}{{ stmt_key | upper }}{% if not loop.last %}, {% endif %}{% endfor %}
+                        </label>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary mt-3" id="submitBtn">
+                    <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>উত্তর জমা দিন
+                </button>
+            </form>
+            <div id="feedback" class="mt-3"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+// JavaScript অপরিবর্তিত থাকবে, কারণ এটি HTML স্ট্রাকচার এবং আইডিগুলোর উপর নির্ভর করে, যা ঠিক আছে।
+$(document).ready(function() {
+    const form = $('#mcqForm');
+    const feedbackDiv = $('#feedback');
+    const submitButton = $('#submitBtn');
+    const radioInputs = form.find('input[type=radio]');
+    const timeLimit = parseInt("{{ time_limit or 0 }}");
+    let timeLeft = timeLimit;
+    const timerDisplay = $('#timeDisplay');
+    let timerInterval;
+    let submissionHandled = false;
+
+    function showFeedback(isCorrect, correctAnswerKey, userSelectedKey) {
+        radioInputs.prop('disabled', true);
+        submitButton.html('<i class="fas fa-arrow-right" style="margin-right: 8px;"></i>পরবর্তী প্রশ্ন').removeClass('btn-primary').addClass('btn-info');
+
+        $('input[name="answer"]').each(function() {
+            const radio = $(this);
+            const label = $('label[for="' + radio.attr('id') + '"]');
+            label.removeClass('text-success text-danger'); 
+
+            if (radio.val() === correctAnswerKey) {
+                label.addClass('text-success');
+            }
+            if (radio.val() === userSelectedKey && !isCorrect) {
+                label.addClass('text-danger');
+            }
+        });
+
+        let feedbackMessage = '';
+        if (isCorrect) {
+            feedbackMessage = '<p class="alert alert-success mb-0"><i class="fas fa-check-circle" style="margin-right: 8px;"></i>সঠিক উত্তর!</p>';
+        } else if (userSelectedKey === "TIMEOUT") {
+            feedbackMessage = '<p class="alert alert-warning mb-0"><i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>সময় শেষ! সঠিক উত্তরটি সবুজ রঙে দেখানো হয়েছে।</p>';
+        } else if (userSelectedKey === "NO_ANSWER" || userSelectedKey === null || typeof userSelectedKey === 'undefined') {
+            feedbackMessage = '<p class="alert alert-warning mb-0"><i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>আপনি কোনো উত্তর দেননি। সঠিক উত্তরটি সবুজ রঙে দেখানো হয়েছে।</p>';
+        } else {
+            feedbackMessage = '<p class="alert alert-danger mb-0"><i class="fas fa-times-circle" style="margin-right: 8px;"></i>ভুল উত্তর। সঠিক উত্তরটি সবুজ রঙে দেখানো হয়েছে।</p>';
+        }
+        feedbackDiv.html(feedbackMessage);
+    }
+
+    function handleSubmission(isTimeout = false) {
+        if (submissionHandled) return;
+        submissionHandled = true;
+
+        clearInterval(timerInterval);
+        let formData = form.serialize();
+        if (isTimeout && $('input[name="answer"]:checked').length === 0) {
+             formData += "&answer=TIMEOUT"; 
+        } else if (isTimeout) {
+            formData += "&timeout_with_answer=true";
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: formData,
+            success: function(response) {
+                showFeedback(response.correct, response.correct_answer_key, response.user_selected_key);
+                setTimeout(function() { window.location.href = response.next_url; }, 3500);
+            },
+            error: function(xhr) {
+                let errorMsg = 'উত্তর জমা দেওয়ার সময় ত্রুটি হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।';
+                if(xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMsg = xhr.responseJSON.error;
+                }
+                feedbackDiv.html('<p class="alert alert-danger mb-0">' + errorMsg + '</p>');
+                submitButton.prop('disabled', false).removeClass('btn-info').addClass('btn-primary').html('<i class="fas fa-paper-plane" style="margin-right: 8px;"></i>উত্তর জমা দিন');
+                submissionHandled = false;
+                 radioInputs.prop('disabled', false);
+            }
+        });
+    }
+
+    if (timeLimit > 0 && timerDisplay.length > 0) {
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            timerDisplay.text(timeLeft);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerDisplay.text("সময় শেষ!");
+                handleSubmission(true);
+            }
+        }, 1000);
+    }
+
+    form.on('submit', function(e) {
+        e.preventDefault();
+        if (submitButton.text().includes('পরবর্তী প্রশ্ন')) {
+            return;
+        }
+        handleSubmission(false);
+    });
+});
+</script>
+{% endblock %}

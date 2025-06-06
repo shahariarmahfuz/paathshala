@@ -1,0 +1,394 @@
+{% extends "layout.html" %}
+
+{% block title %} পরীক্ষার সারাংশ - {{ site_name | default("MCQ Platform") }}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-rgb: 67, 97, 238;
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --success: #28a745;
+        --success-rgb: 40, 167, 69;
+        --success-light: rgba(var(--success-rgb), 0.08);
+        --danger: #dc3545;
+        --danger-rgb: 220, 53, 69;
+        --danger-light: rgba(var(--danger-rgb), 0.08);
+        --warning: #ffc107;
+        --warning-rgb: 255, 193, 7;
+        --warning-light: rgba(var(--warning-rgb), 0.1);
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --light-gray: #e9ecef;
+        --border-color: #dee2e6;
+        --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.07);
+        --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background-color: #f0f4f8;
+        color: var(--dark);
+        line-height: 1.6;
+    }
+
+    .summary-page-container {
+        padding: 30px 0;
+    }
+
+    .main-summary-card { /* মূল কার্ডের জন্য নতুন ক্লাস */
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: var(--shadow-medium);
+        max-width: 900px; /* কার্ডের সর্বোচ্চ প্রস্থ */
+        margin: 0 auto;
+        border: none;
+    }
+
+    .main-summary-card .card-header {
+        background-color: var(--primary);
+        color: white;
+        padding: 18px 25px;
+        border-bottom: none;
+        border-radius: 16px 16px 0 0;
+        display: flex; /* আইকন ও টেক্সট অ্যালাইন করার জন্য */
+        align-items: center;
+    }
+    .main-summary-card .card-header h4 {
+        font-size: 1.5rem; /* হেডার টেক্সট সাইজ */
+        font-weight: 600;
+        margin-bottom: 0;
+        margin-left: 10px;
+    }
+
+    .main-summary-card .card-body {
+        padding: 25px 30px;
+    }
+
+    .overall-stats .stat-item {
+        background-color: var(--light-gray);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 15px; /* ছোট স্ক্রিনে আইটেমগুলোর মধ্যে গ্যাপ */
+    }
+    .overall-stats .stat-item strong {
+        display: block;
+        font-size: 1.1rem;
+        color: var(--dark);
+        margin-bottom: 5px;
+    }
+    .overall-stats .stat-item span {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+     .overall-stats .stat-item.score span { /* স্কোরের জন্য বিশেষ রঙ */
+        color: var(--success);
+    }
+
+
+    .detailed-results-heading {
+        font-size: 1.4rem;
+        color: var(--secondary);
+        margin-top: 30px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--light-gray);
+        text-align: center;
+    }
+
+    .summary-card { /* প্রতিটি প্রশ্নের সারাংশ কার্ড */
+        border-radius: 10px;
+        box-shadow: var(--shadow-light);
+        transition: transform 0.2s ease-in-out;
+    }
+    .summary-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .summary-card .card-body {
+        padding: 18px 20px; /* ভেতরের প্যাডিং */
+    }
+
+    .summary-card.correct {
+        background-color: var(--success-light);
+        border: 1px solid rgba(var(--success-rgb), 0.3);
+        border-left: 5px solid var(--success);
+    }
+    .summary-card.incorrect {
+        background-color: var(--danger-light);
+        border: 1px solid rgba(var(--danger-rgb), 0.3);
+        border-left: 5px solid var(--danger);
+    }
+    .summary-card.no-answer {
+        background-color: var(--warning-light);
+        border: 1px solid rgba(var(--warning-rgb), 0.4);
+        border-left: 5px solid var(--warning);
+    }
+
+    .stimulus-summary {
+        font-size: 0.9em;
+        background-color: rgba(0,0,0,0.03); /* উদ্দীপকের জন্য আরও হালকা ব্যাকগ্রাউন্ড */
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+    .stimulus-summary strong {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .summary-question-text {
+        font-size: 1.1rem;
+        color: var(--dark);
+        line-height: 1.5;
+    }
+    .summary-question-text strong { /* "প্রশ্ন ১:" এই অংশের জন্য */
+        color: var(--primary);
+    }
+
+
+    .summary-options ul {
+        padding-left: 0; /* ডিফল্ট প্যাডিং অপসারণ */
+        list-style-type: none;
+        margin-top: 10px;
+    }
+    .summary-options li {
+        padding: 6px 0;
+        font-size: 1rem;
+        color: #495057;
+        border-bottom: 1px dashed #eee; /* অপশনগুলোর মধ্যে হালকা বিভাজক */
+    }
+    .summary-options li:last-child {
+        border-bottom: none;
+    }
+
+    .summary-options .text-success { color: var(--success) !important; }
+    .summary-options .text-danger { color: var(--danger) !important; }
+    .summary-options .font-weight-bold { font-weight: 600 !important; } /* সামান্য কম বোল্ড */
+
+    .summary-options .user-answer-tag {
+        background-color: var(--accent);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        margin-left: 5px;
+    }
+    .summary-options .correct-answer-tag {
+        background-color: var(--success);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        margin-left: 5px;
+    }
+     .summary-options .incorrect-user-answer-tag { /* যদি ব্যবহারকারীর উত্তর ভুল হয় */
+        background-color: var(--danger);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        margin-left: 5px;
+        text-decoration: line-through;
+    }
+
+
+    .answer-feedback p {
+        font-size: 0.95rem;
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 6px;
+    }
+    .answer-feedback .text-success { background-color: var(--success-light); border: 1px solid var(--success); color: var(--success) !important;}
+    .answer-feedback .text-danger { background-color: var(--danger-light); border: 1px solid var(--danger); color: var(--danger) !important;}
+    .answer-feedback .text-warning { background-color: var(--warning-light); border: 1px solid var(--warning); color: #856404 !important;}
+    .answer-feedback small { font-size: 100%; } /* ছোট ট্যাগকে স্বাভাবিক করা */
+
+    .time-taken-summary {
+        font-size: 0.85em;
+        color: #6c757d;
+    }
+
+    .summary-buttons .btn {
+        padding: 10px 25px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 8px;
+        margin: 0 10px;
+        min-width: 180px; /* বাটনগুলোর ন্যূনতম প্রস্থ */
+    }
+    .summary-buttons .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+    }
+    .summary-buttons .btn-primary:hover {
+        background: linear-gradient(135deg, var(--secondary), var(--accent));
+    }
+    .summary-buttons .btn-secondary {
+        background: var(--light-gray);
+        color: var(--dark);
+        border: 1px solid var(--border-color);
+    }
+    .summary-buttons .btn-secondary:hover {
+        background: #d3d9df;
+    }
+
+    hr {
+        border-top: 1px solid var(--light-gray);
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .main-summary-card .card-header h4 { font-size: 1.3rem; }
+        .main-summary-card .card-body { padding: 20px; }
+        .overall-stats .stat-item { margin-bottom: 10px; }
+        .overall-stats .stat-item:last-child { margin-bottom: 0; }
+        .detailed-results-heading { font-size: 1.25rem; }
+        .summary-card .card-body { padding: 15px; }
+        .summary-question-text { font-size: 1rem; }
+        .summary-options li { font-size: 0.95rem; }
+        .summary-buttons .btn { display: block; width: 100%; margin: 10px 0 0 0; }
+    }
+     @media (max-width: 576px) {
+        .main-summary-card .card-header { padding: 15px; }
+        .main-summary-card .card-header h4 { font-size: 1.2rem; }
+        .main-summary-card .card-body { padding: 15px; }
+        .overall-stats .stat-item strong { font-size: 1rem; }
+        .overall-stats .stat-item span { font-size: 1.15rem; }
+        .stimulus-summary { padding: 8px 10px; font-size: 0.85em; }
+        .summary-question-text { font-size: 0.95rem; }
+        .summary-options li { font-size: 0.9rem; }
+        .answer-feedback p { font-size: 0.9rem; padding: 6px 10px; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="summary-page-container">
+    <div class="main-summary-card">
+        <div class="card-header">
+            <i class="fas fa-poll-h" style="font-size: 1.8rem;"></i><h4>MCQ পরীক্ষার সারাংশ</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4 overall-stats">
+                <div class="col-md-3 col-6 mb-3 mb-md-0">
+                    <div class="stat-item">
+                        <strong><i class="fas fa-list-ol" style="color: var(--accent); margin-right: 5px;"></i>মোট প্রশ্ন</strong>
+                        <span>{{ total_questions }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3 mb-md-0">
+                    <div class="stat-item">
+                        <strong><i class="fas fa-check-double" style="color: var(--success); margin-right: 5px;"></i>সঠিক উত্তর</strong>
+                        <span>{{ correct_answers }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                     <div class="stat-item stat-item score">
+                        <strong><i class="fas fa-percentage" style="color: var(--success); margin-right: 5px;"></i>স্কোর</strong>
+                        <span>{{ "%.2f"|format(score) }}%</span>
+                    </div>
+                </div>
+                {% if average_time is not none %}
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <strong><i class="fas fa-hourglass-half" style="color: var(--info); margin-right: 5px;"></i>গড় সময়</strong>
+                        <span>{{ "%.2f"|format(average_time) }} সে.</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <hr>
+            <h5 class="detailed-results-heading"><i class="fas fa-clipboard-list" style="margin-right: 10px;"></i>বিস্তারিত ফলাফল</h5>
+
+            {% for answer in summary_data %}
+            <div class="card mb-3 summary-card {% if answer.is_correct %}correct{% elif answer.user_answer == 'TIMEOUT' or answer.user_answer == 'NO_ANSWER' or not answer.user_answer %}no-answer{% else %}incorrect{% endif %}">
+                <div class="card-body">
+                    {% if answer.stimulus_text %}
+                    <div class="stimulus-summary">
+                        <strong><i class="fas fa-file-alt"></i> উদ্দীপক:</strong>
+                        <p style="white-space: pre-wrap; margin-bottom:0;">{{ answer.stimulus_text }}</p>
+                    </div>
+                    {% endif %}
+
+                    <p class="font-weight-bold summary-question-text">
+                        <strong>প্রশ্ন {{ loop.index }}:</strong> {{ answer.question_text | safe }}
+                    </p>
+
+                    {% set opts = answer.options_data.options if answer.question_type == 'single_correct' else answer.options_data.option_map %}
+                    {% set stmts = answer.options_data.statements if answer.question_type == 'multi_statement' else none %}
+
+                    {% if stmts %}
+                        <div class="statements mb-2 p-2 border rounded" style="font-size:0.9em; background-color: rgba(0,0,0,0.02);">
+                            <strong><i class="fas fa-list-ul"></i> বিবৃতিসমূহ:</strong><br>
+                            {% for key, text in stmts.items() %}<span>{{ key | upper }}. {{ text }}</span><br>{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="summary-options">
+                        <ul class="list-unstyled">
+                            {% for opt_key, opt_val in opts.items() %}
+                                <li>
+                                    {% set display_option_key = opt_key | upper if answer.question_type == 'single_correct' else opt_key %}
+                                    {% set is_correct_option = (opt_key == answer.correct_option_key) %}
+                                    {% set is_user_option = (opt_key == answer.user_answer) %}
+
+                                    <span 
+                                        {% if is_correct_option %}class="text-success font-weight-bold"{% endif %}
+                                        {% if is_user_option and not answer.is_correct %}class="text-danger font-weight-bold"{% endif %}>
+
+                                        {% if is_correct_option %}<i class="fas fa-check-circle" style="margin-right: 5px; color: var(--success);"></i>{% elif is_user_option and not answer.is_correct %}<i class="fas fa-times-circle" style="margin-right: 5px; color: var(--danger);"></i>{% else %}<i class="far fa-circle" style="margin-right: 5px; color: #aaa;"></i>{% endif %}
+
+                                        {{ display_option_key }}. 
+                                        {% if answer.question_type == 'multi_statement' %}
+                                            {% for stmt_k in opt_val %} {{ stmt_k | upper }} {% if not loop.last %}, {% endif %}{% endfor %}
+                                        {% else %}
+                                            {{ opt_val }}
+                                        {% endif %}
+                                    </span>
+                                    {% if is_user_option and not answer.is_correct %} <span class="incorrect-user-answer-tag">আপনার উত্তর</span>{% elif is_user_option %} <span class="user-answer-tag">আপনার উত্তর</span>{% endif %}
+                                    {% if is_correct_option and not is_user_option and answer.user_answer != "TIMEOUT" and answer.user_answer != "NO_ANSWER" %} <span class="correct-answer-tag">সঠিক উত্তর</span>{% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="answer-feedback">
+                        {% if not answer.is_correct %}
+                            {% if answer.user_answer == "TIMEOUT" %}
+                                <p class="text-warning"><small><i class="fas fa-clock"></i> আপনি এই প্রশ্নের উত্তর দেওয়ার জন্য সময় পাননি।</small></p>
+                            {% elif answer.user_answer == "NO_ANSWER" or not answer.user_answer %}
+                                <p class="text-warning"><small><i class="fas fa-question-circle"></i> আপনি এই প্রশ্নের উত্তর দেননি।</small></p>
+                            {% else %}
+                                <p class="text-danger"><small><i class="fas fa-times"></i> আপনার উত্তরটি ভুল ছিল।</small></p>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-success"><small><i class="fas fa-check"></i> আপনার উত্তরটি সঠিক ছিল!</small></p>
+                        {% endif %}
+                    </div>
+
+                    {% if answer.get('time_taken') is not none %}
+                    <p class="text-muted mt-1 time-taken-summary"><small><i class="far fa-clock"></i> সময় লেগেছে: {{ answer.time_taken }} সেকেন্ড</small></p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="mt-4 text-center summary-buttons">
+                <a href="{{ url_for('public.mcq_selection') }}" class="btn btn-primary"><i class="fas fa-redo-alt" style="margin-right: 8px;"></i>আবার পরীক্ষা দিন</a>
+                <a href="{{ url_for('public.home') }}" class="btn btn-secondary"><i class="fas fa-home" style="margin-right: 8px;"></i>হোমপেজে ফিরে যান</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
