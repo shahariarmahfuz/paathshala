@@ -1,0 +1,373 @@
+{% extends "layout.html" %}
+
+{% block title %}প্রশ্ন পড়ুন - {{ site_name | default("MCQ Platform") }}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-rgb: 67, 97, 238;
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --success: #4cc9f0;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --light-gray: #e9ecef;
+        --border-color: #dee2e6;
+        --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.07);
+        --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background-color: #f0f4f8;
+        color: var(--dark);
+        line-height: 1.6;
+    }
+
+    .page-container {
+        padding: 30px 0;
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--secondary);
+        text-align: center;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .page-title i {
+        margin-right: 15px;
+        font-size: 1.8rem;
+        color: var(--primary);
+    }
+
+    .selection-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: var(--shadow-medium);
+        max-width: 900px;
+        margin: 0 auto;
+        border-top: 5px solid var(--primary);
+    }
+
+    .selection-card .card-header {
+        background-color: var(--light-gray);
+        color: var(--dark);
+        padding: 15px 25px;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 15px 15px 0 0;
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .selection-card .card-body {
+        padding: 30px 35px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px; /* লেবেলের নিচে মার্জিন */
+        display: flex; 
+        align-items: center;
+    }
+    .form-group label i {
+        margin-right: 8px;
+        color: var(--primary);
+        font-size: 1.05em;
+    }
+
+    .form-control { /* শুধুমাত্র <select> এবং <input> এর জন্য */
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        padding: 10px 15px;
+        font-size: 16px;
+        line-height: 1.5;
+        height: auto;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        width: 100%;
+        background-color: #fff;
+    }
+    .form-control:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+    }
+    .form-control:disabled {
+        background-color: #e9ecef;
+        opacity: 0.7;
+    }
+
+    select.form-control {
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E');
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 16px 16px;
+        padding-right: 40px;
+    }
+    select.form-control option {
+        background-color: #fff;
+        color: #333;
+    }
+
+    /* বাটন গ্রুপের জন্য স্টাইল (আগের mcq_selection.html থেকে নেওয়া) */
+    .button-group-label { /* যদি বাটন গ্রুপের জন্য আলাদা লেবেল ব্যবহার করা হয় */
+        display: block;
+        margin-bottom: 10px;
+    }
+    .button-group {
+        display: flex;
+        flex-wrap: wrap; 
+        gap: 10px; 
+        /* margin-bottom: 20px; /* এই form-group এর নিজস্ব মার্জিন আছে, তাই এটি বাদ দেওয়া যেতে পারে */
+    }
+    .button-group input[type="radio"] {
+        display: none; 
+    }
+    .button-group label.btn-option {
+        padding: 10px 15px; /* প্যাডিং সামান্য কমানো হলো টেক্সট ফিট করার জন্য */
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 15px; /* ফন্ট সাইজ সামান্য কমানো হলো */
+        background-color: var(--light);
+        color: var(--dark);
+        text-align: center;
+        flex: 1 1 auto; /* বাটনগুলো যেন জায়গা ভাগ করে নেয় এবং প্রয়োজনে ছোট হয় */
+        min-width: 120px; /* একটি ন্যূনতম প্রস্থ */
+    }
+    .button-group input[type="radio"]:checked + label.btn-option {
+        background-color: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+    }
+    .button-group label.btn-option:hover {
+        background-color: var(--light-gray);
+        border-color: var(--accent);
+    }
+    .button-group input[type="radio"]:checked + label.btn-option:hover {
+        background-color: var(--accent); 
+        border-color: var(--accent);
+    }
+
+
+    .form-buttons {
+        margin-top: 25px;
+        text-align: center;
+    }
+    .form-buttons .btn {
+        padding: 10px 28px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 8px;
+        margin: 5px;
+        min-width: 180px;
+        transition: all 0.3s ease;
+    }
+    .form-buttons .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+        color: white;
+    }
+    .form-buttons .btn-primary:hover {
+        background: linear-gradient(135deg, var(--secondary), var(--accent));
+        transform: translateY(-2px);
+    }
+    .form-buttons .btn-secondary {
+        background-color: var(--light-gray);
+        border: 1px solid var(--border-color);
+        color: var(--dark);
+    }
+    .form-buttons .btn-secondary:hover {
+        background-color: #d3d9df;
+        border-color: #b6bfc8;
+    }
+    .form-buttons .btn i {
+        margin-right: 8px;
+    }
+
+    @media (max-width: 991px) {
+        .form-row .form-group.col-md-4 {
+            margin-bottom: 20px;
+        }
+         .form-row .form-group.col-md-4:last-child {
+            margin-bottom: 0;
+        }
+        .button-group {
+             justify-content: center; /* ছোট স্ক্রিনে বাটনগুলো সেন্টারে আনার চেষ্টা */
+        }
+        .button-group label.btn-option {
+            flex-basis: calc(33.33% - 7px); /* তিনটি বাটন একই লাইনে রাখার চেষ্টা, গ্যাপ অ্যাডজাস্ট করে */
+            min-width: 0; /* min-width রিসেট করা যাতে flex-basis কাজ করে */
+        }
+
+    }
+    @media (max-width: 768px) {
+        .page-title { font-size: 1.7rem; margin-bottom: 25px; }
+        .page-title i { font-size: 1.5rem; }
+        .selection-card { padding: 0; }
+        .selection-card .card-header { font-size: 1rem; padding: 12px 20px; }
+        .selection-card .card-body { padding: 25px 20px; }
+        .form-buttons .btn { width: 100%; display: block; margin: 10px 0 0 0; }
+        .form-buttons .btn:first-child { margin-top: 0; }
+        .button-group label.btn-option {
+            flex-basis: 100%; /* একটির নিচে আরেকটি আসবে */
+        }
+    }
+     @media (max-width: 576px) {
+        .page-title { font-size: 1.5rem; }
+        .page-title i { font-size: 1.3rem; margin-right: 10px; }
+        .selection-card .card-header { padding: 10px 15px; font-size: 0.95rem; }
+        .selection-card .card-body { padding: 20px 15px; }
+        .form-control, select.form-control { font-size: 15px; padding: 10px 12px; }
+        select.form-control { padding-right: 35px; background-position: right 10px center; }
+        .form-buttons .btn { font-size: 1rem; padding: 10px 20px; }
+        .button-group label.btn-option {
+            font-size: 14px; /* ছোট স্ক্রিনে ফন্ট সাইজ */
+            padding: 8px 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <h2 class="page-title"><i class="fas fa-book-reader"></i>প্রশ্ন পড়ুন (সংক্ষিপ্ত, অনুধাবন, সৃজনশীল)</h2>
+
+    <div class="selection-card">
+        <div class="card-header">
+            আপনার পছন্দ অনুযায়ী শ্রেণী, বিষয় এবং প্রশ্নের ধরন নির্বাচন করুন
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('public_extra.select_extra_questions') }}">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="class_id_selector_public_extra"><i class="fas fa-graduation-cap"></i>শ্রেণী নির্বাচন করুন:</label>
+                        <select class="form-control" id="class_id_selector_public_extra" name="class_id_selector_public_extra" required>
+                            <option value="" disabled {% if not selected_class_id %}selected{% endif %}>--- শ্রেণী বাছাই করুন ---</option>
+                            {% for class_item in classes %}
+                            <option value="{{ class_item.id }}" {% if selected_class_id == class_item.id %}selected{% endif %}>
+                                {{ class_item.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="subject_id_public_extra"><i class="fas fa-book"></i>বিষয় নির্বাচন করুন:</label>
+                        <select class="form-control" id="subject_id_public_extra" name="subject_id_public_extra" required {% if not selected_class_id %}disabled{% endif %}>
+                            {% if subjects_for_selected_class %}
+                                <option value="" disabled {% if not selected_subject_id %}selected{% endif %}>--- বিষয় বাছাই করুন ---</option>
+                                {% for subject in subjects_for_selected_class %}
+                                    <option value="{{ subject.id }}" {% if selected_subject_id == subject.id %}selected{% endif %}>
+                                        {{ subject.name }}
+                                    </option>
+                                {% endfor %}
+                            {% elif selected_class_id %}
+                                 <option value="" disabled selected>লোড হচ্ছে বা কোনো বিষয় নেই...</option>
+                            {% else %}
+                                <option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="question_type_extra_group"><i class="fas fa-question-circle"></i>প্রশ্নের ধরন নির্বাচন করুন:</label>
+                        <div class="button-group" id="question_type_extra_group">
+                            <input type="radio" id="q_type_short" name="question_type_extra" value="short" 
+                                   {% if selected_q_type == 'short' %}checked{% endif %} required>
+                            <label for="q_type_short" class="btn-option">সংক্ষিপ্ত</label>
+
+                            <input type="radio" id="q_type_comprehension" name="question_type_extra" value="comprehension" 
+                                   {% if selected_q_type == 'comprehension' %}checked{% endif %} required>
+                            <label for="q_type_comprehension" class="btn-option">অনুধাবনমূলক</label>
+
+                            <input type="radio" id="q_type_creative" name="question_type_extra" value="creative" 
+                                   {% if selected_q_type == 'creative' %}checked{% endif %} required>
+                            <label for="q_type_creative" class="btn-option">সৃজনশীল</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-eye"></i>প্রশ্ন দেখুন</button>
+                    <a href="{{ url_for('public.home') }}" class="btn btn-secondary"><i class="fas fa-home"></i>হোম পেজে ফিরে যান</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+$(document).ready(function() {
+    function populateSubjectsPublic(classId, subjectSelectElement, selectedSubjectId) {
+        var defaultOption = '<option value="" disabled>--- বিষয় বাছাই করুন ---</option>';
+        if (!selectedSubjectId) {
+             defaultOption = '<option value="" disabled selected>--- বিষয় বাছাই করুন ---</option>';
+        }
+
+        subjectSelectElement.empty().append('<option value="" disabled selected>লোড হচ্ছে...</option>').prop('disabled', true);
+
+        if (classId) {
+            var ajaxUrl = "{{ url_for('public.ajax_public_get_subjects_for_class', class_id=0) }}".slice(0, -1) + classId;
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'GET',
+                success: function(data) {
+                    subjectSelectElement.empty().append(defaultOption);
+                    if (data.length > 0) {
+                        $.each(data, function(index, subject) {
+                            var option = $('<option>', { value: subject.id, text: subject.name });
+                            if (selectedSubjectId && subject.id == selectedSubjectId) {
+                                option.prop('selected', true);
+                                subjectSelectElement.find('option[value=""]').prop('selected', false);
+                            }
+                            subjectSelectElement.append(option);
+                        });
+                        subjectSelectElement.prop('disabled', false);
+                    } else {
+                        subjectSelectElement.append('<option value="" disabled>এই শ্রেণীতে কোনো বিষয় যোগ করা হয়নি</option>');
+                        subjectSelectElement.prop('disabled', true);
+                    }
+                },
+                error: function() {
+                    subjectSelectElement.empty().append('<option value="" disabled>বিষয় আনতে সমস্যা হয়েছে</option>');
+                    subjectSelectElement.prop('disabled', true);
+                }
+            });
+        } else {
+            subjectSelectElement.empty().append('<option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>').prop('disabled', true);
+        }
+    }
+
+    var classSelectorPublic = $('#class_id_selector_public_extra');
+    var subjectSelectorPublic = $('#subject_id_public_extra');
+    var initialClassIdPublic = classSelectorPublic.val();
+    var initialSubjectIdPublic = "{{ selected_subject_id | default('') }}";
+
+    // যদি কোনো প্রশ্ন প্রকার ডিফল্টভাবে নির্বাচিত না থাকে, এবং required হয়, 
+    // তাহলে কোনো একটিকে ডিফল্ট checked করা যেতে পারে অথবা ব্যবহারকারীকে নির্বাচন করতে বাধ্য করা হবে।
+    // এখানে, যদি selected_q_type না থাকে, কোনোটিই checked হবে না, কিন্তু required থাকায় ফর্ম জমা হবে না।
+    // যদি ডিফল্ট চান: {% if not selected_q_type or selected_q_type == 'short' %}checked{% endif %} প্রথম অপশনে।
+
+    classSelectorPublic.change(function() {
+        var classId = $(this).val();
+        populateSubjectsPublic(classId, subjectSelectorPublic, null); 
+    });
+
+    if (initialClassIdPublic) {
+        populateSubjectsPublic(initialClassIdPublic, subjectSelectorPublic, initialSubjectIdPublic ? initialSubjectIdPublic : null);
+    } else {
+         subjectSelectorPublic.empty().append('<option value="" disabled selected>--- প্রথমে শ্রেণী বাছাই করুন ---</option>').prop('disabled', true);
+    }
+});
+</script>
+{% endblock %}

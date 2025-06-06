@@ -1,0 +1,287 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ subject.name }} - {{ question_type_name }} - MCQ Platform{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-rgb: 67, 97, 238;
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --info: #17a2b8;
+        --info-light: rgba(23, 162, 184, 0.1);
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --light-gray: #e9ecef;
+        --border-color: #dee2e6;
+        --text-muted: #6c757d;
+        --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.07);
+        --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background-color: #f0f4f8;
+        color: var(--dark);
+        line-height: 1.6;
+    }
+
+    .page-container {
+        padding: 30px 0;
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--secondary);
+        margin-bottom: 0;
+    }
+    .page-title .text-muted {
+        font-size: 0.9em;
+        font-weight: 500;
+    }
+    .btn-back-to-selection {
+        background-color: var(--light-gray);
+        border: 1px solid var(--border-color);
+        color: var(--dark);
+        padding: 0.375rem 0.85rem;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .btn-back-to-selection:hover {
+        background-color: #d3d9df;
+        border-color: #b6bfc8;
+    }
+    .btn-back-to-selection i {
+        margin-right: 5px;
+    }
+
+    .creative-question-wrapper {
+        background-color: #fff;
+        border-radius: 16px;
+        box-shadow: var(--shadow-medium);
+        border-top: 5px solid var(--primary);
+        padding: 25px 30px;
+    }
+
+    .stimulus-section {
+        background-color: var(--light);
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        border-left: 5px solid var(--accent); /* উদ্দীপকের জন্য অ্যাকসেন্ট বর্ডার */
+    }
+    .stimulus-section.previously-read {
+        border-left-color: var(--text-muted); /* পূর্বে পঠিত উদ্দীপকের জন্য ধূসর বর্ডার */
+        background-color: #fafafa;
+    }
+    .stimulus-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .stimulus-header h4 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--secondary);
+        margin-bottom: 0;
+    }
+    .stimulus-header .previously-read-badge-cq {
+        font-size: 0.8em;
+        padding: 0.4em 0.8em;
+        background-color: var(--info);
+        color: white;
+        border-radius: 20px;
+    }
+    .stimulus-section p {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: var(--dark);
+    }
+
+    .question-part {
+        margin-bottom: 25px;
+        padding: 20px;
+        border: 1px solid var(--light-gray);
+        border-radius: 8px;
+        background-color: #fff; /* প্রতিটি প্রশ্ন-উত্তর অংশকে আলাদা দেখানোর জন্য */
+    }
+    .question-part:last-child {
+        margin-bottom: 0;
+    }
+    .question-part p {
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 12px;
+    }
+    .question-part p strong {
+        color: var(--primary);
+        margin-right: 5px;
+    }
+
+    .answer-sub-section {
+        background-color: var(--light);
+        padding: 15px;
+        margin-top: 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+    .answer-sub-section p {
+        font-size: 1rem;
+        color: #495057;
+        margin-bottom: 0;
+        line-height: 1.7;
+    }
+    .answer-sub-section strong {
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    /* Pagination Styles */
+    .pagination {
+        margin-top: 30px;
+    }
+    .page-item .page-link {
+        color: var(--primary);
+        border-radius: 6px;
+        margin: 0 5px;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+        padding: 0.6rem 1rem;
+    }
+    .page-item .page-link:hover {
+        background-color: var(--light-gray);
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+    .page-item.active .page-link, .page-item.disabled .page-link {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 2px 5px rgba(var(--primary-rgb), 0.3);
+    }
+    .page-item.disabled .page-link {
+        color: #a9b3be;
+        background-color: #f8f9fa;
+        border-color: var(--border-color);
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+    .pagination .page-item.disabled .page-link:hover {
+        background-color: #f8f9fa; /* ডিজেবলড বাটনে হোভার ইফেক্ট বন্ধ */
+    }
+
+    .alert-no-questions { /* প্রশ্ন না থাকলে যে অ্যালার্ট দেখানো হয় */
+        background-color: var(--info-light);
+        border: 1px solid var(--info);
+        color: var(--info);
+        border-radius: 8px;
+        padding: 15px 20px;
+    }
+    .alert-no-questions .alert-link {
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .page-header { flex-direction: column; align-items: flex-start; }
+        .page-title { font-size: 1.5rem; margin-bottom: 10px; }
+        .btn-back-to-selection { width: 100%; text-align: center; }
+        .creative-question-wrapper { padding: 20px; }
+        .stimulus-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .stimulus-header h4 { font-size: 1.25rem; }
+        .stimulus-section p { font-size: 1rem; }
+        .question-part { padding: 15px; }
+        .question-part p { font-size: 1.05rem; }
+        .answer-sub-section { padding: 12px; font-size: 0.95rem; }
+    }
+    @media (max-width: 576px) {
+        .page-container { padding: 20px 0; }
+        .page-header { margin-bottom: 20px; }
+        .page-title { font-size: 1.3rem; }
+        .creative-question-wrapper { padding: 15px; }
+        .stimulus-section { padding: 15px; }
+        .stimulus-header h4 { font-size: 1.2rem; }
+        .stimulus-section p { font-size: 0.95rem; }
+        .pagination .page-item .page-link { padding: 0.4rem 0.8rem; margin: 0 2px; font-size: 0.9rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-feather-alt" style="color: var(--primary);"></i> {{ subject.class_level.name }} - {{ subject.name }} <small class="text-muted">({{ question_type_name }})</small>
+        </h2>
+        <a href="{{ url_for('public_extra.select_extra_questions', class_id=subject.class_level.id, subject_id=subject.id, question_type='creative') }}" class="btn btn-sm btn-back-to-selection">
+            <i class="fas fa-chevron-left"></i> নতুন বিষয়/ধরন বাছাই করুন
+        </a>
+    </div>
+
+    {% if questions_data %}
+        {% for data_item in questions_data %}
+        <div class="creative-question-wrapper">
+            <div class="stimulus-section {% if data_item.previously_read %}previously-read{% endif %}">
+                <div class="stimulus-header">
+                    <h4><i class="fas fa-book-open" style="margin-right: 10px;"></i>উদ্দীপক</h4>
+                    {% if data_item.previously_read %}
+                        <span class="badge previously-read-badge-cq"><i class="fas fa-history" style="margin-right: 5px;"></i>পূর্বে পঠিত</span>
+                    {% endif %}
+                </div>
+                <p>{{ data_item.question.stimulus.text|safe if data_item.question.stimulus else 'N/A' }}</p>
+            </div>
+
+            {% set part_labels = ['ক.', 'খ.', 'গ.', 'ঘ.'] %}
+            {% for part_data in data_item.question.get_parts_data_dict_list() %}
+            <div class="question-part">
+                <p><strong>{{ part_labels[loop.index0] }} প্রশ্ন:</strong> {{ part_data.question_text|safe }}</p>
+                <div class="answer-sub-section">
+                    <p class="mb-0"><strong><i class="fas fa-lightbulb" style="color: var(--secondary); margin-right: 8px;"></i>উত্তর:</strong> {{ part_data.answer_text|safe }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        {# Pagination for Creative Questions #}
+        {% if total_pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for(request.endpoint, class_id=subject.class_level.id, subject_id=subject.id, question_type=request.args.get('question_type'), page=current_page - 1) }}">&laquo; পূর্ববর্তী উদ্দীপক</a>
+                </li>
+
+                <li class="page-item active">
+                    <span class="page-link"> উদ্দীপক {{ current_page }} / {{ total_pages }} </span>
+                </li>
+
+                <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for(request.endpoint, class_id=subject.class_level.id, subject_id=subject.id, question_type=request.args.get('question_type'), page=current_page + 1) }}">পরবর্তী উদ্দীপক &raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="alert alert-no-questions">
+            <i class="fas fa-info-circle" style="margin-right: 10px;"></i>এই বিষয় এবং ধরনে কোনো সৃজনশীল প্রশ্ন খুঁজে পাওয়া যায়নি অথবা সকল প্রশ্ন আপনার পড়া হয়ে গেছে।
+            <a href="{{ url_for('public_extra.select_extra_questions') }}" class="alert-link" style="margin-left: 5px;">অন্য বিষয়/ধরন চেষ্টা করুন।</a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
