@@ -1,0 +1,263 @@
+{% extends "layout.html" %}
+
+{% block title %}শিক্ষামূলক পোস্টসমূহ - {{ site_name | default("MCQ Platform") }}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-rgb: 67, 97, 238;
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --success: #28a745; /* সবুজ রঙ */
+        --info: #17a2b8; 
+        --info-light: rgba(23, 162, 184, 0.1);
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --light-gray: #e9ecef;
+        --border-color: #dee2e6;
+        --text-muted: #6c757d;
+        --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background-color: #f0f4f8; 
+        color: var(--dark);
+        line-height: 1.6;
+    }
+
+    .page-container {
+        padding: 30px 0;
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--secondary);
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+    }
+    .page-title i {
+        margin-right: 12px;
+        color: var(--primary);
+    }
+
+    .post-summary-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: var(--shadow-light);
+        margin-bottom: 25px;
+        transition: transform .25s ease-out, box-shadow .25s ease-out;
+        border: 1px solid var(--border-color);
+    }
+    .post-summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+    }
+    .post-summary-card .card-body {
+        padding: 25px 30px;
+    }
+    .post-summary-card .card-title a {
+        color: var(--primary);
+        font-size: 1.6rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    .post-summary-card .card-title a:hover {
+        color: var(--secondary);
+        text-decoration: underline;
+    }
+    .post-meta {
+        font-size: 0.9em;
+        color: var(--text-muted);
+        margin-bottom: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px 15px;
+    }
+    .post-meta span {
+        display: inline-flex;
+        align-items: center;
+    }
+    .post-meta i {
+        margin-right: 6px;
+        color: var(--accent);
+    }
+    .post-summary-card .card-text {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+    .post-summary-card .btn-read-more { /* "বিস্তারিত দেখুন" বাটনের জন্য নতুন ক্লাস */
+        background-color: transparent;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 6px 15px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 20px;
+        transition: all 0.2s ease;
+    }
+    .post-summary-card .btn-read-more:hover {
+        background-color: var(--primary);
+        color: white;
+        text-decoration: none;
+    }
+    .post-summary-card .btn-read-more i {
+        margin-left: 5px;
+    }
+
+    /* Pagination Styles */
+    .pagination {
+        margin-top: 30px;
+    }
+    .page-item .page-link {
+        color: var(--primary);
+        border-radius: 6px;
+        margin: 0 3px;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+        padding: 0.5rem 0.85rem;
+    }
+    .page-item .page-link:hover {
+        background-color: var(--light-gray);
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+    .page-item.active .page-link {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 2px 5px rgba(var(--primary-rgb), 0.3);
+    }
+    .page-item.disabled .page-link {
+        color: #adb5bd;
+        background-color: #f8f9fa;
+        border-color: var(--border-color);
+    }
+
+    .pagination-info {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    .alert-no-content {
+        background-color: var(--info-light);
+        border: 1px solid var(--info);
+        color: var(--info);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+    .alert-no-content i {
+        margin-right: 10px;
+        font-size: 1.3rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-title { font-size: 1.7rem; }
+        .post-summary-card .card-body { padding: 20px; }
+        .post-summary-card .card-title a { font-size: 1.4rem; }
+        .post-meta { font-size: 0.85em; }
+        .post-summary-card .card-text { font-size: 0.95rem; }
+        .row > .col-md-12 { /* যদি এক কলাম লেআউট হয়, তাহলে মোবাইলে গ্যাপ কমানো */
+             padding-left: 10px;
+             padding-right: 10px;
+        }
+    }
+     @media (max-width: 576px) {
+        .page-container { padding: 20px 0; }
+        .page-header { margin-bottom: 20px; padding-bottom: 10px; }
+        .page-title { font-size: 1.5rem; }
+        .page-title i { font-size: 1.3rem; margin-right: 10px; }
+        .post-summary-card .card-body { padding: 15px 20px; }
+        .post-summary-card .card-title a { font-size: 1.25rem; }
+        .post-meta { gap: 5px 10px; }
+        .post-summary-card .btn-read-more { font-size: 0.85rem; padding: 5px 12px; }
+        .pagination { font-size: 0.9rem; }
+        .page-item .page-link { padding: 0.3rem 0.6rem; margin: 0 2px; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="page-header">
+        <h2 class="page-title"><i class="fas fa-newspaper"></i>সকল শিক্ষামূলক পোস্ট</h2>
+        {# 
+        <div class="page-actions">
+             ফিল্টার বা নতুন পোস্ট তৈরির বাটন এখানে যোগ করা যেতে পারে 
+            <a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i> নতুন পোস্ট</a>
+        </div> 
+        #}
+    </div>
+
+    {% if posts %} {# এখন posts সরাসরি তালিকা, posts.items এর প্রয়োজন নেই #}
+        <div class="row">
+            {% for post in posts %}
+            <div class="col-lg-8 col-md-10 mx-auto"> {# পোস্টগুলোকে সেন্টারে একটি কলামে দেখানোর জন্য #}
+                <div class="card post-summary-card">
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="{{ url_for('post_public.view_single_post', post_id=post.id) }}">{{ post.title }}</a></h4>
+                        <p class="post-meta">
+                            <span><i class="fas fa-user-edit"></i> লেখক: @{{ post.author.username }}</span>
+                            <span><i class="fas fa-calendar-alt"></i> প্রকাশিত: {{ post.created_at | bangla_datetime if post.created_at else 'N/A' }}</span>
+                        </p>
+                        <p class="card-text">{{ post.content | striptags | truncate(250, True, '...') }}</p>
+                        <a href="{{ url_for('post_public.view_single_post', post_id=post.id) }}" class="btn btn-read-more">বিস্তারিত দেখুন <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {# Pagination Links #}
+        {# এখানে 'pagination' ভেরিয়েবলটি ব্যবহার করা হচ্ছে, যা ব্যাকএন্ড থেকে পাস করা হবে #}
+        {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('post_public.list_all_posts', page=pagination.prev_num) if pagination.has_prev else '#' }}"><i class="fas fa-chevron-left" style="font-size:0.8em;"></i> পূর্ববর্তী</a>
+                </li>
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if pagination.page == page_num %}
+                        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('post_public.list_all_posts', page=page_num) }}">{{ page_num }}</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('post_public.list_all_posts', page=pagination.next_num) if pagination.has_next else '#' }}">পরবর্তী <i class="fas fa-chevron-right" style="font-size:0.8em;"></i></a>
+                </li>
+            </ul>
+        </nav>
+        <p class="text-center pagination-info mt-2">পৃষ্ঠা {{ pagination.page }} / {{ pagination.pages }} (মোট {{ pagination.total }} টি পোস্ট)</p>
+        {% endif %}
+
+    {% else %}
+        <div class="alert alert-no-content mt-3">
+            <i class="fas fa-info-circle"></i> এই মুহূর্তে কোনো শিক্ষামূলক পোস্ট নেই।
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

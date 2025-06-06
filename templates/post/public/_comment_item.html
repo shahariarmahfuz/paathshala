@@ -1,0 +1,30 @@
+{# _comment_item.html #}
+<div class="comment" id="comment-{{ comment.id }}">
+    <p class="comment-author">@{{ comment.user.username }}</p>
+    <p class="comment-date">{{ comment.created_at | bangla_datetime if comment.created_at }}</p>
+    <div class="comment-content">
+        {{ comment.content | safe }}
+    </div>
+    <div class="comment-actions mt-2">
+        {% if current_user.is_authenticated %}
+        <button class="btn btn-sm btn-outline-info btn-reply" data-comment-id="{{ comment.id }}" data-username="{{ comment.user.username }}">রিপ্লাই</button>
+        {% endif %}
+    </div>
+    <div class="replies-container ml-4 mt-2">
+        {% for reply in comment.replies.order_by(PostComment.created_at.asc()).all() %} {# রিপ্লাইগুলো পুরাতন থেকে নতুন ক্রমে #}
+            <div class="comment reply" id="comment-{{ reply.id }}">
+                <p class="comment-author">@{{ reply.user.username }}</p>
+                <p class="comment-date">{{ reply.created_at | bangla_datetime if reply.created_at }}</p>
+                <div class="comment-content">{{ reply.content | safe }}</div>
+                {% if current_user.is_authenticated and current_user.id != reply.user_id %} {# নিজের রিপ্লাইতে রিপ্লাই বাটন না দেখানো #}
+                <div class="comment-actions mt-2">
+                     <button class="btn btn-sm btn-outline-secondary btn-reply" data-comment-id="{{ reply.id }}" data-username="{{ reply.user.username }}">রিপ্লাই</button>
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="reply-form-container" id="reply-form-container-{{ comment.id }}">
+        {# রিপ্লাই ফর্ম এখানে JavaScript দিয়ে যোগ করা হবে #}
+    </div>
+</div>

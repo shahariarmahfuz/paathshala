@@ -1,0 +1,277 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ post.title }} - শিক্ষামূলক পোস্ট{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-rgb: 67, 97, 238;
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --success: #28a745;
+        --info: #17a2b8; 
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --light-gray: #e9ecef;
+        --border-color: #dee2e6;
+        --text-muted: #6c757d;
+        --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background-color: #f0f4f8; 
+        color: var(--dark);
+        line-height: 1.6;
+    }
+
+    .page-container {
+        padding: 30px 0;
+    }
+
+    .post-single-card { /* মূল পোস্টের জন্য কার্ড */
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: var(--shadow-medium);
+        margin: 0 auto;
+        max-width: 850px; /* পোস্টের কনটেন্টের জন্য একটি উপযুক্ত প্রস্থ */
+    }
+    .post-single-card article header {
+        padding: 25px 30px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .post-single-card .post-title { /* h1 এর জন্য নতুন ক্লাস */
+        font-size: 2.2rem; /* শিরোনামের ফন্ট সাইজ */
+        font-weight: 700;
+        color: var(--secondary);
+        margin-bottom: 15px; /* মেটা তথ্য থেকে দূরত্ব */
+        line-height: 1.3;
+    }
+    .post-meta-single {
+        font-size: 0.95em; /* মেটা তথ্যের ফন্ট সাইজ */
+        color: var(--text-muted);
+        margin-bottom: 0; /* হেডারের নিচের বর্ডারের সাথে মিশে যাবে */
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px 20px; /* আইটেমগুলোর মধ্যে গ্যাপ */
+    }
+    .post-meta-single span { /* প্রতিটি মেটা আইটেম */
+        display: inline-flex;
+        align-items: center;
+    }
+    .post-meta-single i {
+        margin-right: 8px;
+        color: var(--accent);
+    }
+    .post-meta-single strong {
+        color: var(--dark);
+        font-weight: 600;
+    }
+
+    .post-content {
+        padding: 30px;
+        font-size: 1.1rem; /* কনটেন্টের ফন্ট সাইজ */
+        line-height: 1.8; /* উন্নত পঠনযোগ্যতা */
+        color: #333; /* কনটেন্টের টেক্সট রঙ */
+    }
+    /* পোস্ট কনটেন্টের ভেতরের এলিমেন্টগুলোর জন্য সাধারণ স্টাইল (প্রয়োজন অনুযায়ী) */
+    .post-content h2, .post-content h3, .post-content h4 {
+        color: var(--secondary);
+        margin-top: 1.5em;
+        margin-bottom: 0.8em;
+    }
+    .post-content p {
+        margin-bottom: 1.2em;
+    }
+    .post-content ul, .post-content ol {
+        padding-left: 1.5em;
+        margin-bottom: 1.2em;
+    }
+    .post-content blockquote {
+        border-left: 4px solid var(--accent);
+        padding-left: 1em;
+        margin-left: 0;
+        font-style: italic;
+        color: #555;
+    }
+    .post-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1em 0;
+    }
+
+
+    .like-section {
+        padding: 0 30px 25px 30px; /* লাইক সেকশনের প্যাডিং */
+        text-align: right; /* ডান দিকে অ্যালাইন */
+    }
+    .like-btn {
+        cursor: pointer;
+        padding: 8px 18px; /* বাটনের প্যাডিং */
+        font-size: 1rem; /* বাটনের ফন্ট সাইজ */
+        font-weight: 500;
+        border-radius: 25px; /* সম্পূর্ণ গোলাকার বাটন */
+        transition: all 0.2s ease;
+    }
+    .like-btn.btn-primary { /* যখন লাইক করা হয়েছে */
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+    .like-btn.btn-outline-primary { /* যখন লাইক করা হয়নি */
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    .like-btn.btn-outline-primary:hover {
+        background: var(--primary);
+        color: white;
+    }
+    .like-btn .fa-heart {
+        margin-right: 8px;
+    }
+    #likeCount {
+        margin-left: 10px;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+
+    hr.post-divider { /* লাইক সেকশনের পরের বিভাজক */
+        margin: 0 30px;
+        border-top: 1px solid var(--light-gray);
+    }
+
+    .back-to-posts-link { /* সব পোস্টে ফিরে যাওয়ার লিঙ্ক (যদি প্রয়োজন হয়) */
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px 30px;
+        border-top: 1px solid var(--border-color);
+    }
+     .back-to-posts-link .btn{
+        padding: 10px 25px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        border-radius: 8px;
+     }
+
+
+    /* কমেন্ট সেকশনের CSS সম্পূর্ণ বাদ দেওয়া হয়েছে */
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .post-single-card article header { padding: 20px; }
+        .post-single-card .post-title { font-size: 1.8rem; }
+        .post-meta-single { font-size: 0.9em; }
+        .post-content { padding: 20px; font-size: 1rem; }
+        .like-section { padding: 0 20px 20px 20px; }
+        hr.post-divider { margin: 0 20px; }
+    }
+    @media (max-width: 576px) {
+        .page-container { padding: 20px 0; }
+        .post-single-card article header { padding: 15px; }
+        .post-single-card .post-title { font-size: 1.5rem; }
+        .post-meta-single { font-size: 0.85em; gap: 5px 15px; }
+        .post-content { padding: 15px; font-size: 0.95rem; }
+        .like-btn { padding: 6px 15px; font-size: 0.9rem; }
+        #likeCount { font-size: 0.9rem; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+    <div class="post-single-card">
+        <article class="post-single">
+            <header>
+                <h1 class="mb-3 post-title">{{ post.title }}</h1>
+                <p class="post-meta-single">
+                    <span><i class="fas fa-user-edit"></i>লেখক: <strong>@{{ post.author.username }}</strong></span>
+                    <span><i class="fas fa-calendar-alt"></i>প্রকাশিত: {{ post.created_at | bangla_datetime if post.created_at }}</span>
+                    {% if post.updated_at and post.updated_at != post.created_at %}
+                    <span><i class="fas fa-sync-alt"></i>সর্বশেষ আপডেট: {{ post.updated_at | bangla_datetime }}</span>
+                    {% endif %}
+                </p>
+            </header>
+
+            <section class="post-content">
+                {{ post.content | safe }} 
+            </section>
+
+            <section class="like-section">
+                <button id="likeBtn" class="btn {% if user_liked_post %}btn-primary{% else %}btn-outline-primary{% endif %} like-btn" data-post-id="{{ post.id }}">
+                    <i class="fas fa-heart"></i> 
+                    <span id="likeActionText">{% if user_liked_post %}লাইক করেছেন{% else %}লাইক করুন{% endif %}</span>
+                </button>
+                <span id="likeCount" class="ml-2 text-muted">{{ post.likes.count() }} টি লাইক</span>
+            </section>
+
+            {# কমেন্ট সেকশন এখানে ছিল, এখন বাদ দেওয়া হয়েছে #}
+             <div class="back-to-posts-link">
+                <a href="{{ url_for('post_public.list_all_posts') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> সকল পোস্টে ফিরে যান
+                </a>
+            </div>
+
+        </article>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }} {# layout.html থেকে jQuery আসার কথা #}
+<script>
+$(document).ready(function() {
+    const postId = "{{ post.id }}";
+    const currentUserId = {{ current_user.id if current_user.is_authenticated else 'null' }};
+
+    // লাইক বাটন হ্যান্ডলিং
+    $('#likeBtn').on('click', function() {
+        if (!currentUserId) {
+            alert('লাইক করার জন্য অনুগ্রহ করে লগইন করুন।');
+            // আপনি চাইলে লগইন পৃষ্ঠায় রিডাইরেক্ট করতে পারেন:
+            // window.location.href = "{{ url_for('auth.login', next=request.url) }}";
+            return;
+        }
+
+        $.ajax({
+            url: "{{ url_for('post_public.toggle_like_post', post_id=post.id) }}",
+            type: 'POST',
+            // CSRF টোকেন (যদি Flask-WTF বা Flask-SeaSurf ব্যবহার করেন)
+            // headers: {
+            //     'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') 
+            // },
+            success: function(response) {
+                if (response.success) {
+                    $('#likeCount').text(response.like_count + ' টি লাইক');
+                    if (response.liked) {
+                        $('#likeBtn').removeClass('btn-outline-primary').addClass('btn-primary');
+                        $('#likeActionText').text('লাইক করেছেন');
+                    } else {
+                        $('#likeBtn').removeClass('btn-primary').addClass('btn-outline-primary');
+                        $('#likeActionText').text('লাইক করুন');
+                    }
+                } else {
+                    alert('লাইক করার সময় সমস্যা হয়েছে: ' + (response.error || ' অজানা ত্রুটি'));
+                }
+            },
+            error: function(xhr) {
+                // console.error("Like error:", xhr.responseText); // ডিবাগিং এর জন্য
+                if (xhr.status === 401) { // Unauthorized
+                     alert('লাইক করার জন্য অনুগ্রহ করে লগইন করুন।');
+                } else {
+                    alert('সার্ভারের সাথে সংযোগে সমস্যা হয়েছে।');
+                }
+            }
+        });
+    });
+
+    // কমেন্ট সম্পর্কিত JavaScript সম্পূর্ণভাবে বাদ দেওয়া হয়েছে
+    // formatBengaliDateTimeJS ফাংশনটিও বাদ দেওয়া হয়েছে কারণ এটি শুধুমাত্র কমেন্টের জন্য ব্যবহৃত হচ্ছিল
+});
+</script>
+{% endblock %}
